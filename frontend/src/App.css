@@ -1,0 +1,54 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 0px;
+}
+
+.chat-input {
+  display: flex;
+  align-items: center; /* makes input + button same vertical alignment */
+  gap: 8px; /* space between input and button */
+  padding: 16px 0px;
+}
+
+.chat-input input {
+  flex: 1; /* input expands to take available space */
+  height: 40px; /* match button height */
+  padding: 0 16px;
+  font-size: 14px;
+}
+
+.chat-input button {
+  height: 40px; /* same as input */
+  padding: 0 16px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.bot-message {
+  text-align: left;
+  padding: 10px 25px;
+  border-radius: 10px;
+  margin: 10px 0;
+}
+
+.user-message {
+  background-color: #113CCF;
+  color: white;
+  text-align: right;
+  padding: 10px 25px;
+  border-radius: 10px;
+  margin: 10px 0;
+}
+
+.chat-section {
+    width: 800px;
+}

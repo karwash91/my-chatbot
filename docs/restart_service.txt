@@ -1,0 +1,13 @@
+DevOpsy Service Restart Guide
+
+To restart a service in DevOpsy:
+
+1. Log in to the DevOpsy CLI.
+2. Run: devopsy service list
+3. Identify the service ID you want to restart.
+4. Run: devopsy service restart <service_id>
+5. Confirm status with: devopsy service status <service_id>
+
+Notes:
+- A restart will cause ~30 seconds of downtime.
+- Use --force if the service is stuck.

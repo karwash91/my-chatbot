@@ -1,0 +1,13 @@
+DevOpsy Scaling Guide
+
+To scale services in DevOpsy:
+
+- Scale horizontally:
+  devopsy scale --service <service_id> --replicas <N>
+
+- Scale vertically:
+  devopsy scale --service <service_id> --cpu 4 --memory 8GB
+
+Best Practices:
+- Monitor load before scaling.
+- Avoid scaling during peak deployments.

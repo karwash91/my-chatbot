@@ -1,0 +1,10 @@
+DevOpsy Deployment Guide
+
+Steps for deploying a new version:
+
+1. Push your code to the repo with tag vX.Y.Z.
+2. Run: devopsy deploy --tag vX.Y.Z
+3. Verify deployment with: devopsy status --deployments
+4. Rollback if needed: devopsy rollback --tag vX.Y.Z
+
+Reminder: Always run integration tests before deploying.

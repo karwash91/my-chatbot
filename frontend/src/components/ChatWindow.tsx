@@ -1,0 +1,112 @@
+import React, { useState, useEffect, useRef } from "react";
+import ReactMarkdown from "react-markdown";
+
+type Message = {
+    sender: "user" | "bot" | "error";
+    text: string;
+};
+
+const ChatWindow: React.FC = () => {
+    const [messages, setMessages] = useState<Message[]>([]);
+    const [input, setInput] = useState("");
+    const [loading, setLoading] = useState(false);
+    const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        // Scroll to bottom when messages update
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages]);
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setInput(e.target.value);
+    };
+
+    const handleSend = async () => {
+        const trimmed = input.trim();
+        if (!trimmed || loading) return;
+
+        setMessages((prev) => [...prev, { sender: "user", text: trimmed }]);
+        setInput("");
+        setLoading(true);
+
+        try {
+            const response = await fetch(
+                "https://yf6mptf887.execute-api.us-east-1.amazonaws.com/dev/chat",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ query: trimmed }),
+                }
+            );
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error("API error response:", errorText);
+                throw new Error(`API error: ${response.status} ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            console.log("API success response:", data);
+
+            if (!data || !data.answer) {
+                throw new Error("Invalid response from server.");
+            }
+
+            setMessages((prev) => [...prev, { sender: "bot", text: data.answer }]);
+        } catch (e: any) {
+            console.error("Fetch error:", e);
+            setMessages((prev) => [
+                ...prev,
+                { sender: "error", text: `Error: ${e.message || "Something went wrong."}` },
+            ]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") {
+            handleSend();
+        }
+    };
+
+    return (
+        <div className="chat-window">
+            <div className="messages">
+                {messages.map((msg, idx) => (
+                    <div
+                        key={idx}
+                        className={
+                            msg.sender === "user"
+                                ? "user-message"
+                                : msg.sender === "bot"
+                                    ? "bot-message"
+                                    : "error-message"
+                        }
+                    >
+                        <ReactMarkdown>{msg.text}</ReactMarkdown>
+                    </div>
+                ))}
+                {loading && <div className="bot-message typing-indicator">typing...</div>}
+                <div ref={messagesEndRef} />
+            </div>
+            <div className="chat-input">
+                <input
+                    type="text"
+                    value={input}
+                    onChange={handleInputChange}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Type your message..."
+                    disabled={loading}
+                />
+                <button onClick={handleSend} disabled={loading || input.trim() === ""}>
+                    Send
+                </button>
+            </div>
+        </div>
+    );
+};
+
+export default ChatWindow;
