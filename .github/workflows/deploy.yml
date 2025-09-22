@@ -48,14 +48,18 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
-      - name: Terraform Apply
-        run: terraform apply -auto-approve
+      - name: Terraform Apply (infra only)
+        run: terraform apply -target=aws_s3_bucket.docs_bucket -auto-approve
 
       - name: Upload Lambda packages to S3
         run: |
+          bucket=$(terraform output -raw docs_bucket_name)
           for fn in chat upload ingest fetch; do
-            aws s3 cp lambdas/$fn.zip s3://$(terraform output -raw docs_bucket_name)/lambdas/$fn.zip
+            aws s3 cp lambdas/$fn.zip s3://$bucket/lambdas/$fn.zip
           done
+
+      - name: Terraform Apply (all)
+        run: terraform apply -auto-approve
 
       - name: Sync frontend build to S3
         run: |
