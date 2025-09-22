@@ -9,7 +9,7 @@ const SuggestedPrompts: React.FC<{ onSelect: (text: string) => void }> = ({ onSe
 
   return (
     <div>
-        <h4>Suggested prompts</h4>
+        <h4 style={{ textAlign: "left" }}>Suggested prompts</h4>
     <div className="suggested-prompts">
       {prompts.map((prompt, idx) => (
         <button key={idx} onClick={() => onSelect(prompt)}>

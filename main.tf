@@ -71,19 +71,18 @@ resource "aws_sqs_queue" "ingest_queue" {
   }
 }
 
-resource "aws_sqs_queue" "chat_queue" {
-  name = "my-chatbot-chat-queue"
-
-  tags = {
-    Project = "my-chatbot"
-  }
-}
-
-# --- Cognito User Pool ---
 resource "aws_cognito_user_pool" "chatbot_pool" {
   name = "my-chatbot-user-pool"
 
   auto_verified_attributes = ["email"]
+
+  schema {
+    attribute_data_type      = "String"
+    name                     = "email"
+    required                 = true
+    developer_only_attribute = false
+    mutable                  = true
+  }
 
   password_policy {
     minimum_length    = 8
