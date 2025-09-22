@@ -133,13 +133,6 @@ resource "aws_cognito_user_pool_client" "chatbot_client" {
     "https://${aws_cloudfront_distribution.frontend_cdn.domain_name}/callback"
   ]
 
-  web_origins = [
-    "http://localhost:5173",
-    "http://localhost:5173/",
-    "https://${aws_cloudfront_distribution.frontend_cdn.domain_name}",
-    "https://${aws_cloudfront_distribution.frontend_cdn.domain_name}/"
-  ]
-
   supported_identity_providers = ["COGNITO"]
   prevent_user_existence_errors = "ENABLED"
 }
