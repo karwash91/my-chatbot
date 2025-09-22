@@ -18,7 +18,7 @@ resource "random_id" "suffix" {
 }
 
 resource "aws_s3_bucket" "docs_bucket" {
-  bucket = "my-chatbot-docs-f3db596b"
+  bucket = "my-chatbot-docs-${random_id.suffix.hex}"
 }
 
 resource "aws_s3_bucket_versioning" "docs_versioning" {
@@ -31,7 +31,7 @@ resource "aws_s3_bucket_versioning" "docs_versioning" {
 
 # --- DynamoDB Tables ---
 resource "aws_dynamodb_table" "docs_table" {
-  name         = "my-chatbot-docs"
+  name         = "my-chatbot-docs-${random_id.suffix.hex}"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "doc_id"
   range_key    = "chunk_id"
@@ -48,7 +48,7 @@ resource "aws_dynamodb_table" "docs_table" {
 }
 
 resource "aws_dynamodb_table" "answers_table" {
-  name         = "my-chatbot-answers"
+  name         = "my-chatbot-answers-${random_id.suffix.hex}"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "session_id"
   range_key    = "timestamp"
@@ -142,7 +142,7 @@ resource "aws_cognito_user_pool_domain" "chatbot_domain" {
 
 # --- IAM Role and Policies ---
 resource "aws_iam_role" "lambda_role" {
-  name = "my-chatbot-lambda-role"
+  name = "my-chatbot-lambda-role-${random_id.suffix.hex}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -337,7 +337,10 @@ resource "aws_api_gateway_integration_response" "upload_post_integration_respons
     "method.response.header.Access-Control-Allow-Methods"     = "'GET,POST,OPTIONS'"
     "method.response.header.Access-Control-Allow-Credentials" = "'true'"
   }
-  depends_on = [aws_api_gateway_method_response.upload_post_response]
+  depends_on = [
+    aws_api_gateway_integration.upload_integration,
+    aws_api_gateway_method_response.upload_post_response
+  ]
 }
 
 resource "aws_api_gateway_method" "upload_options" {
@@ -388,6 +391,10 @@ resource "aws_api_gateway_integration_response" "upload_options_integration_resp
     "method.response.header.Access-Control-Allow-Headers"     = "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
     "method.response.header.Access-Control-Allow-Credentials" = "'true'"
   }
+  depends_on = [
+    aws_api_gateway_integration.upload_options_integration,
+    aws_api_gateway_method_response.upload_options_response
+  ]
 }
 
 # /chat resource
@@ -444,7 +451,10 @@ resource "aws_api_gateway_integration_response" "chat_post_integration_response"
     "method.response.header.Access-Control-Allow-Methods"     = "'GET,POST,OPTIONS'"
     "method.response.header.Access-Control-Allow-Credentials" = "'true'"
   }
-  depends_on = [aws_api_gateway_method_response.chat_post_response]
+  depends_on = [
+    aws_api_gateway_integration.chat_integration,
+    aws_api_gateway_method_response.chat_post_response
+  ]
 }
 
 resource "aws_api_gateway_method" "chat_options" {
@@ -495,6 +505,10 @@ resource "aws_api_gateway_integration_response" "chat_options_integration_respon
     "method.response.header.Access-Control-Allow-Headers"     = "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
     "method.response.header.Access-Control-Allow-Credentials" = "'true'"
   }
+  depends_on = [
+    aws_api_gateway_integration.chat_options_integration,
+    aws_api_gateway_method_response.chat_options_response
+  ]
 }
 
 # /fetch/{session_id} resource
@@ -557,7 +571,10 @@ resource "aws_api_gateway_integration_response" "fetch_get_integration_response"
     "method.response.header.Access-Control-Allow-Methods"     = "'GET,POST,OPTIONS'"
     "method.response.header.Access-Control-Allow-Credentials" = "'true'"
   }
-  depends_on = [aws_api_gateway_method_response.fetch_get_response]
+  depends_on = [
+    aws_api_gateway_integration.fetch_integration,
+    aws_api_gateway_method_response.fetch_get_response
+  ]
 }
 
 resource "aws_api_gateway_method" "fetch_options" {
@@ -608,6 +625,10 @@ resource "aws_api_gateway_integration_response" "fetch_options_integration_respo
     "method.response.header.Access-Control-Allow-Headers"     = "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
     "method.response.header.Access-Control-Allow-Credentials" = "'true'"
   }
+  depends_on = [
+    aws_api_gateway_integration.fetch_options_integration,
+    aws_api_gateway_method_response.fetch_options_response
+  ]
 }
 
 # --- API Gateway Deployment and Stage ---
@@ -763,4 +784,20 @@ output "frontend_cdn_url" {
 
 output "frontend_cdn_id" {
   value = aws_cloudfront_distribution.frontend_cdn.id
+}
+
+output "docs_bucket_name" {
+  value = aws_s3_bucket.docs_bucket.bucket
+}
+
+output "docs_table_name" {
+  value = aws_dynamodb_table.docs_table.name
+}
+
+output "answers_table_name" {
+  value = aws_dynamodb_table.answers_table.name
+}
+
+output "lambda_role_name" {
+  value = aws_iam_role.lambda_role.name
 }
