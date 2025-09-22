@@ -32,9 +32,6 @@ jobs:
         working-directory: frontend
         run: npm run build
 
-      - name: Sync frontend build to S3
-        run: |
-          aws s3 sync frontend/dist s3://$(terraform output -raw docs_bucket_name) --delete
 
       # --- Lambda Zipping ---
       - name: Zip Lambdas
@@ -53,3 +50,7 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
+
+      - name: Sync frontend build to S3
+        run: |
+          aws s3 sync frontend/dist s3://$(terraform output -raw docs_bucket_name) --delete
