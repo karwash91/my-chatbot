@@ -19,18 +19,17 @@
   padding: 16px 0px;
 }
 
-.chat-input input {
-  flex: 1; /* input expands to take available space */
-  height: 40px; /* match button height */
+.chat-input input,
+.chat-input button {
+  height: 40px; /* same height */
   padding: 0 16px;
   font-size: 14px;
+  line-height: 1;
+  box-sizing: border-box;
 }
 
-.chat-input button {
-  height: 40px; /* same as input */
-  padding: 0 16px;
-  font-size: 14px;
-  cursor: pointer;
+.chat-input input {
+  flex: 1;
 }
 
 .bot-message {
@@ -38,17 +37,41 @@
   padding: 10px 25px;
   border-radius: 10px;
   margin: 10px 0;
+  max-width: 100%;
+  margin-right: auto;
 }
 
 .user-message {
-  background-color: #113CCF;
+  background-color: blue;
   color: white;
   text-align: right;
   padding: 10px 25px;
   border-radius: 10px;
   margin: 10px 0;
+  max-width: 70%;
+  margin-left: auto;
 }
 
 .chat-section {
     width: 800px;
+}
+
+.suggested-prompts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.suggested-prompts button {
+  background-color: blue;
+  border: none;
+  border-radius: 16px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.suggested-prompts button:hover {
+  background-color: cornflowerblue;
 }

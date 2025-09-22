@@ -70,7 +70,7 @@ def handler(event, context):
         top_chunks = [t for _, t in sorted(scored, key=lambda x: x[0], reverse=True)[:3]]
 
         # 4. Ask Bedrock LLM with context
-        system_prompt = "You are a helpful DevOps assistant. Use the provided context to answer the user’s question."
+        system_prompt = "You are a helpful DevOps assistant. Use the provided context to answer the user’s question in 1200 characters or less."
 
         # Input tagging for Bedrock Guardrails (required for prompt-attack detection with InvokeModel)
         guardrail_tag_suffix = "usr"  # must match tagSuffix below
@@ -109,8 +109,6 @@ def handler(event, context):
 
         # Inspect guardrail action from response headers (INTERVENED | NONE)
         headers = llm_response.get("ResponseMetadata", {}).get("HTTPHeaders", {}) or {}
-        guardrail_action = headers.get("x-amzn-bedrock-guardrail-action")
-        print("Guardrail action:", guardrail_action)
 
         print("Claude raw response:", raw_response)
         parsed = json.loads(raw_response)
@@ -121,9 +119,6 @@ def handler(event, context):
                 if block.get("type") == "text":
                     assistant_text += block.get("text", "")
 
-        if not assistant_text and guardrail_action == "INTERVENED":
-            assistant_text = "Your message or the model response was blocked by our safety guardrails. Please rephrase and try again."
-
         return {
             "statusCode": 200,
     "headers": {
@@ -132,7 +127,7 @@ def handler(event, context):
         "Access-Control-Allow-Headers": "Content-Type",
         "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
     },
-                "body": json.dumps({"answer": assistant_text, "context": top_chunks, "guardrail_action": guardrail_action}),
+                "body": json.dumps({"answer": assistant_text, "context": top_chunks}),
         }
     except Exception as e:
         print("ERROR in handler:", str(e))

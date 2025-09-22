@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import { API_BASE_URL } from "../utils/config";
+import SuggestedPrompts from "./SuggestedPrompts";
 
 type Message = {
     sender: "user" | "bot" | "error";
@@ -87,16 +88,17 @@ const ChatWindow: React.FC = () => {
                         <ReactMarkdown>{msg.text}</ReactMarkdown>
                     </div>
                 ))}
-                {loading && <div className="bot-message typing-indicator">typing...</div>}
+                {loading && <div className="bot-message thinkning-indicator">Thinking...</div>}
                 <div ref={messagesEndRef} />
             </div>
+            <SuggestedPrompts onSelect={(prompt) => setInput(prompt)} />
             <div className="chat-input">
                 <input
                     type="text"
                     value={input}
                     onChange={handleInputChange}
                     onKeyDown={handleKeyDown}
-                    placeholder="Type your message..."
+                    placeholder="Ask a question..."
                     disabled={loading}
                 />
                 <button onClick={handleSend} disabled={loading || input.trim() === ""}>
