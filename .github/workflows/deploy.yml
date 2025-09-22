@@ -90,3 +90,14 @@ jobs:
           aws cloudfront create-invalidation \
             --distribution-id $(terraform output -raw frontend_cdn_id) \
             --paths "/*"
+
+      - name: Upload docs to API
+        run: |
+          API_URL=$(terraform output -raw api_invoke_url)/upload
+          for file in docs/*.txt; do
+            echo "Uploading $file ..."
+            CONTENT=$(cat "$file" | jq -Rs .)
+            curl -X POST "$API_URL" \
+              -H "Content-Type: application/json" \
+              -d "{\"filename\":\"$(basename "$file")\", \"content\":$CONTENT}"
+          done
