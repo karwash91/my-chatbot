@@ -214,7 +214,7 @@ resource "aws_lambda_function" "upload_lambda" {
     aws_iam_role_policy.lambda_extra,
     aws_iam_role_policy_attachment.lambda_basic
   ]
-  function_name = "my-chatbot-upload"
+  function_name = "my-chatbot-upload-${random_id.suffix.hex}"
   role          = aws_iam_role.lambda_role.arn
   handler       = "upload.handler"
   runtime       = "python3.11"
@@ -236,7 +236,7 @@ resource "aws_lambda_function" "ingest_worker" {
     aws_iam_role_policy.lambda_extra,
     aws_iam_role_policy_attachment.lambda_basic
   ]
-  function_name = "my-chatbot-ingest-worker"
+  function_name = "my-chatbot-ingest-worker-${random_id.suffix.hex}"
   role          = aws_iam_role.lambda_role.arn
   handler       = "ingest.handler"
   runtime       = "python3.11"
@@ -258,7 +258,7 @@ resource "aws_lambda_function" "chat_lambda" {
     aws_iam_role_policy.lambda_extra,
     aws_iam_role_policy_attachment.lambda_basic
   ]
-  function_name = "my-chatbot-chat"
+  function_name = "my-chatbot-chat-${random_id.suffix.hex}"
 
   role    = aws_iam_role.lambda_role.arn
   handler = "chat.handler"
@@ -281,7 +281,7 @@ resource "aws_lambda_function" "fetch_lambda" {
     aws_iam_role_policy.lambda_extra,
     aws_iam_role_policy_attachment.lambda_basic
   ]
-  function_name = "my-chatbot-fetch"
+  function_name = "my-chatbot-fetch-${random_id.suffix.hex}"
   role          = aws_iam_role.lambda_role.arn
   handler       = "fetch.handler"
   runtime       = "python3.11"
