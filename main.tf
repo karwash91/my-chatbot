@@ -209,7 +209,11 @@ resource "aws_iam_role_policy" "lambda_extra" {
 
 # --- Lambda Functions ---
 resource "aws_lambda_function" "upload_lambda" {
-  depends_on    = [aws_iam_role.lambda_role]
+  depends_on = [
+    aws_iam_role.lambda_role,
+    aws_iam_role_policy.lambda_extra,
+    aws_iam_role_policy_attachment.lambda_basic
+  ]
   function_name = "my-chatbot-upload"
   role          = aws_iam_role.lambda_role.arn
   handler       = "upload.handler"
@@ -227,7 +231,11 @@ resource "aws_lambda_function" "upload_lambda" {
 }
 
 resource "aws_lambda_function" "ingest_worker" {
-  depends_on    = [aws_iam_role.lambda_role]
+  depends_on = [
+    aws_iam_role.lambda_role,
+    aws_iam_role_policy.lambda_extra,
+    aws_iam_role_policy_attachment.lambda_basic
+  ]
   function_name = "my-chatbot-ingest-worker"
   role          = aws_iam_role.lambda_role.arn
   handler       = "ingest.handler"
@@ -245,7 +253,11 @@ resource "aws_lambda_function" "ingest_worker" {
 }
 
 resource "aws_lambda_function" "chat_lambda" {
-  depends_on    = [aws_iam_role.lambda_role]
+  depends_on = [
+    aws_iam_role.lambda_role,
+    aws_iam_role_policy.lambda_extra,
+    aws_iam_role_policy_attachment.lambda_basic
+  ]
   function_name = "my-chatbot-chat"
 
   role    = aws_iam_role.lambda_role.arn
@@ -264,7 +276,11 @@ resource "aws_lambda_function" "chat_lambda" {
 }
 
 resource "aws_lambda_function" "fetch_lambda" {
-  depends_on    = [aws_iam_role.lambda_role]
+  depends_on = [
+    aws_iam_role.lambda_role,
+    aws_iam_role_policy.lambda_extra,
+    aws_iam_role_policy_attachment.lambda_basic
+  ]
   function_name = "my-chatbot-fetch"
   role          = aws_iam_role.lambda_role.arn
   handler       = "fetch.handler"
