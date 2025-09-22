@@ -7,9 +7,9 @@ terraform {
   }
   required_version = ">= 1.3"
   backend "s3" {
-    bucket         = "karwash91-tfstate"
-    key            = "chatbot/terraform.tfstate"
-    region         = "us-east-1"
+    bucket = "karwash91-tfstate"
+    key    = "chatbot/terraform.tfstate"
+    region = "us-east-1"
   }
 }
 
@@ -23,7 +23,7 @@ data "aws_caller_identity" "current" {}
 
 
 resource "aws_s3_bucket" "docs_bucket" {
-  bucket = "my-chatbot-docs-${data.aws_region.current.name}-${data.aws_caller_identity.current.account_id}"
+  bucket        = "my-chatbot-docs-${data.aws_region.current.name}-${data.aws_caller_identity.current.account_id}"
   force_destroy = true
 }
 
@@ -300,6 +300,10 @@ resource "aws_lambda_event_source_mapping" "ingest_sqs_trigger" {
     aws_lambda_function.ingest_worker,
     aws_sqs_queue.ingest_queue
   ]
+
+  lifecycle {
+    create_before_destroy = false
+  }
 }
 
 # --- API Gateway ---
@@ -702,7 +706,7 @@ resource "aws_lambda_permission" "apigw_fetch" {
 }
 
 resource "aws_s3_bucket" "frontend_bucket" {
-  bucket = "my-chatbot-frontend-${data.aws_region.current.name}-${data.aws_caller_identity.current.account_id}"
+  bucket        = "my-chatbot-frontend-${data.aws_region.current.name}-${data.aws_caller_identity.current.account_id}"
   force_destroy = true
 }
 
