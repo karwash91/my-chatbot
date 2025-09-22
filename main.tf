@@ -9,8 +9,7 @@ terraform {
 }
 
 provider "aws" {
-  region  = "us-east-1"
-  profile = "admin"
+  region = "us-east-1"
 }
 
 # --- S3 Bucket ---
