@@ -134,6 +134,20 @@ resource "aws_cognito_user_pool_client" "chatbot_client" {
   ]
 
   supported_identity_providers = ["COGNITO"]
+  prevent_user_existence_errors = "ENABLED"
+}
+
+# --- Cognito App Client Web Origins ---
+resource "aws_cognito_user_pool_client_web_origins" "chatbot_client_web_origins" {
+  user_pool_id = aws_cognito_user_pool.chatbot_pool.id
+  client_id    = aws_cognito_user_pool_client.chatbot_client.id
+
+  web_origins = [
+    "http://localhost:5173",
+    "http://localhost:5173/",
+    "https://${aws_cloudfront_distribution.frontend_cdn.domain_name}",
+    "https://${aws_cloudfront_distribution.frontend_cdn.domain_name}/"
+  ]
 }
 
 # --- Cognito Domain ---
