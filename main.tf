@@ -120,15 +120,15 @@ resource "aws_cognito_user_pool_client" "chatbot_client" {
   callback_urls = [
     "http://localhost:5173",
     "http://localhost:5173/",
-    "https://d2praxeghwqrzu.cloudfront.net",
-    "https://d2praxeghwqrzu.cloudfront.net/"
+    "https://${aws_cloudfront_distribution.frontend_cdn.domain_name}",
+    "https://${aws_cloudfront_distribution.frontend_cdn.domain_name}/"
   ]
 
   logout_urls = [
     "http://localhost:5173",
     "http://localhost:5173/",
-    "https://d2praxeghwqrzu.cloudfront.net",
-    "https://d2praxeghwqrzu.cloudfront.net/"
+    "https://${aws_cloudfront_distribution.frontend_cdn.domain_name}",
+    "https://${aws_cloudfront_distribution.frontend_cdn.domain_name}/"
   ]
 
   supported_identity_providers = ["COGNITO"]
@@ -199,8 +199,8 @@ resource "aws_iam_role_policy" "lambda_extra" {
         ]
       },
       {
-        Effect = "Allow",
-        Action = ["bedrock:ApplyGuardrail"],
+        Effect   = "Allow",
+        Action   = ["bedrock:ApplyGuardrail"],
         Resource = "arn:aws:bedrock:us-east-1:588738567290:guardrail/rqkveuut7fzm"
       }
     ]
@@ -209,6 +209,7 @@ resource "aws_iam_role_policy" "lambda_extra" {
 
 # --- Lambda Functions ---
 resource "aws_lambda_function" "upload_lambda" {
+  depends_on    = [aws_iam_role.lambda_role]
   function_name = "my-chatbot-upload"
   role          = aws_iam_role.lambda_role.arn
   handler       = "upload.handler"
@@ -226,6 +227,7 @@ resource "aws_lambda_function" "upload_lambda" {
 }
 
 resource "aws_lambda_function" "ingest_worker" {
+  depends_on    = [aws_iam_role.lambda_role]
   function_name = "my-chatbot-ingest-worker"
   role          = aws_iam_role.lambda_role.arn
   handler       = "ingest.handler"
@@ -243,6 +245,7 @@ resource "aws_lambda_function" "ingest_worker" {
 }
 
 resource "aws_lambda_function" "chat_lambda" {
+  depends_on    = [aws_iam_role.lambda_role]
   function_name = "my-chatbot-chat"
 
   role    = aws_iam_role.lambda_role.arn
@@ -261,6 +264,7 @@ resource "aws_lambda_function" "chat_lambda" {
 }
 
 resource "aws_lambda_function" "fetch_lambda" {
+  depends_on    = [aws_iam_role.lambda_role]
   function_name = "my-chatbot-fetch"
   role          = aws_iam_role.lambda_role.arn
   handler       = "fetch.handler"
@@ -634,6 +638,14 @@ resource "aws_api_gateway_integration_response" "fetch_options_integration_respo
 # --- API Gateway Deployment and Stage ---
 resource "aws_api_gateway_deployment" "chatbot_deployment" {
   rest_api_id = aws_api_gateway_rest_api.chatbot_api.id
+
+  triggers = {
+    redeployment = sha1(jsonencode([
+      aws_api_gateway_integration.upload_integration.id,
+      aws_api_gateway_integration.chat_integration.id,
+      aws_api_gateway_integration.fetch_integration.id
+    ]))
+  }
 
   lifecycle {
     create_before_destroy = true
