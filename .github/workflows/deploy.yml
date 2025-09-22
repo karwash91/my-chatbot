@@ -64,3 +64,5 @@ jobs:
       - name: Sync frontend build to S3
         run: |
           aws s3 sync frontend/dist s3://$(terraform output -raw docs_bucket_name) --delete
+
+          
