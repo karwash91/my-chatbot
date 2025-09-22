@@ -219,8 +219,8 @@ resource "aws_lambda_function" "upload_lambda" {
   handler       = "upload.handler"
   runtime       = "python3.11"
 
-  filename         = "lambdas/upload.zip"
-  source_code_hash = filebase64sha256("lambdas/upload.zip")
+  s3_bucket = aws_s3_bucket.docs_bucket.bucket
+  s3_key    = "lambdas/upload.zip"
 
   environment {
     variables = {
@@ -241,8 +241,8 @@ resource "aws_lambda_function" "ingest_worker" {
   handler       = "ingest.handler"
   runtime       = "python3.11"
 
-  filename         = "lambdas/ingest.zip"
-  source_code_hash = filebase64sha256("lambdas/ingest.zip")
+  s3_bucket = aws_s3_bucket.docs_bucket.bucket
+  s3_key    = "lambdas/ingest.zip"
 
   environment {
     variables = {
@@ -265,8 +265,8 @@ resource "aws_lambda_function" "chat_lambda" {
   runtime = "python3.11"
   timeout = 30
 
-  filename         = "lambdas/chat.zip"
-  source_code_hash = filebase64sha256("lambdas/chat.zip")
+  s3_bucket = aws_s3_bucket.docs_bucket.bucket
+  s3_key    = "lambdas/chat.zip"
 
   environment {
     variables = {
@@ -286,8 +286,8 @@ resource "aws_lambda_function" "fetch_lambda" {
   handler       = "fetch.handler"
   runtime       = "python3.11"
 
-  filename         = "lambdas/fetch.zip"
-  source_code_hash = filebase64sha256("lambdas/fetch.zip")
+  s3_bucket = aws_s3_bucket.docs_bucket.bucket
+  s3_key    = "lambdas/fetch.zip"
 }
 
 # --- Lambda Event Source Mapping ---

@@ -41,6 +41,12 @@ jobs:
             zip -j "$fn.zip" "$fn.py"
           done
 
+      - name: Upload Lambda packages to S3
+        run: |
+          for fn in chat upload ingest fetch; do
+            aws s3 cp lambdas/$fn.zip s3://$(terraform output -raw docs_bucket_name)/lambdas/$fn.zip
+          done
+
       # --- Terraform ---
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
