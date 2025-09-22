@@ -49,7 +49,7 @@ jobs:
         run: terraform init
 
       - name: Terraform Apply (infra only)
-        run: terraform apply -target=aws_s3_bucket.docs_bucket -auto-approve
+        run: terraform apply -target=aws_s3_bucket.docs_bucket -target=aws_s3_bucket.frontend_bucket -auto-approve
 
       - name: Upload Lambda packages to S3
         run: |
@@ -63,6 +63,10 @@ jobs:
 
       - name: Sync frontend build to S3
         run: |
-          aws s3 sync frontend/dist s3://$(terraform output -raw docs_bucket_name) --delete
+          aws s3 sync frontend/dist s3://$(terraform output -raw frontend_bucket) --delete
 
-          
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id $(terraform output -raw frontend_cdn_id) \
+            --paths "/*"
