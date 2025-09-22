@@ -704,25 +704,14 @@ resource "aws_s3_bucket" "frontend_bucket" {
   bucket = "my-chatbot-frontend-${random_id.suffix.hex}"
 }
 
-resource "aws_s3_bucket_website_configuration" "frontend_bucket_website" {
-  bucket = aws_s3_bucket.frontend_bucket.id
-
-  index_document {
-    suffix = "index.html"
-  }
-
-  error_document {
-    key = "index.html"
-  }
-}
 
 resource "aws_s3_bucket_public_access_block" "frontend_bucket_block" {
   bucket = aws_s3_bucket.frontend_bucket.id
 
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
 
 output "frontend_bucket" {
@@ -802,9 +791,6 @@ resource "aws_cloudfront_distribution" "frontend_cdn" {
   }
 }
 
-output "frontend_url" {
-  value = aws_s3_bucket_website_configuration.frontend_bucket_website.website_endpoint
-}
 
 output "frontend_cdn_url" {
   value = aws_cloudfront_distribution.frontend_cdn.domain_name
