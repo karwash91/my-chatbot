@@ -818,3 +818,12 @@ output "lambda_role_name" {
   value = aws_iam_role.lambda_role.name
 }
 
+
+output "cognito_client_id" {
+  value = aws_cognito_user_pool_client.chatbot_client.id
+}
+
+output "cognito_domain" {
+  value = aws_cognito_user_pool_domain.chatbot_domain.domain
+}
+
