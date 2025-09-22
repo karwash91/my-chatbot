@@ -156,21 +156,11 @@ resource "aws_iam_role" "lambda_role" {
       }
     ]
   })
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-resource "aws_iam_role_policy_attachment" "lambda_basic" {
-  role       = aws_iam_role.lambda_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
 resource "aws_iam_role_policy" "lambda_extra" {
   name = "my-chatbot-lambda-extra"
   role = aws_iam_role.lambda_role.id
-
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
@@ -211,12 +201,18 @@ resource "aws_iam_role_policy" "lambda_extra" {
   })
 }
 
+resource "aws_iam_role_policy_attachment" "lambda_basic" {
+  role       = aws_iam_role.lambda_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+
 # --- Lambda Functions ---
 resource "aws_lambda_function" "upload_lambda" {
   depends_on = [
     aws_iam_role.lambda_role,
-    aws_iam_role_policy.lambda_extra,
-    aws_iam_role_policy_attachment.lambda_basic
+    aws_iam_role_policy_attachment.lambda_basic,
+    aws_iam_role_policy.lambda_extra
   ]
   function_name = "my-chatbot-upload"
   role          = aws_iam_role.lambda_role.arn
@@ -237,8 +233,8 @@ resource "aws_lambda_function" "upload_lambda" {
 resource "aws_lambda_function" "ingest_worker" {
   depends_on = [
     aws_iam_role.lambda_role,
-    aws_iam_role_policy.lambda_extra,
-    aws_iam_role_policy_attachment.lambda_basic
+    aws_iam_role_policy_attachment.lambda_basic,
+    aws_iam_role_policy.lambda_extra
   ]
   function_name = "my-chatbot-ingest-worker"
   role          = aws_iam_role.lambda_role.arn
@@ -259,8 +255,8 @@ resource "aws_lambda_function" "ingest_worker" {
 resource "aws_lambda_function" "chat_lambda" {
   depends_on = [
     aws_iam_role.lambda_role,
-    aws_iam_role_policy.lambda_extra,
-    aws_iam_role_policy_attachment.lambda_basic
+    aws_iam_role_policy_attachment.lambda_basic,
+    aws_iam_role_policy.lambda_extra
   ]
   function_name = "my-chatbot-chat"
 
@@ -282,8 +278,8 @@ resource "aws_lambda_function" "chat_lambda" {
 resource "aws_lambda_function" "fetch_lambda" {
   depends_on = [
     aws_iam_role.lambda_role,
-    aws_iam_role_policy.lambda_extra,
-    aws_iam_role_policy_attachment.lambda_basic
+    aws_iam_role_policy_attachment.lambda_basic,
+    aws_iam_role_policy.lambda_extra
   ]
   function_name = "my-chatbot-fetch"
   role          = aws_iam_role.lambda_role.arn
@@ -300,9 +296,10 @@ resource "aws_lambda_event_source_mapping" "ingest_sqs_trigger" {
   function_name    = aws_lambda_function.ingest_worker.arn
   batch_size       = 1
 
-  lifecycle {
-    create_before_destroy = true
-  }
+  depends_on = [
+    aws_lambda_function.ingest_worker,
+    aws_sqs_queue.ingest_queue
+  ]
 }
 
 # --- API Gateway ---
@@ -669,10 +666,6 @@ resource "aws_api_gateway_deployment" "chatbot_deployment" {
       aws_api_gateway_integration.chat_integration.id,
       aws_api_gateway_integration.fetch_integration.id
     ]))
-  }
-
-  lifecycle {
-    create_before_destroy = true
   }
 
 }
