@@ -6,6 +6,11 @@ terraform {
     }
   }
   required_version = ">= 1.3"
+  backend "s3" {
+    bucket         = "karwash91-tfstate"
+    key            = "chatbot/terraform.tfstate"
+    region         = "us-east-1"
+  }
 }
 
 provider "aws" {
@@ -20,14 +25,6 @@ data "aws_caller_identity" "current" {}
 resource "aws_s3_bucket" "docs_bucket" {
   bucket = "my-chatbot-docs-${data.aws_region.current.name}-${data.aws_caller_identity.current.account_id}"
   force_destroy = true
-}
-
-resource "aws_s3_bucket_versioning" "docs_versioning" {
-  bucket = aws_s3_bucket.docs_bucket.id
-
-  versioning_configuration {
-    status = "Enabled"
-  }
 }
 
 # --- DynamoDB Tables ---
@@ -300,6 +297,11 @@ resource "aws_lambda_event_source_mapping" "ingest_sqs_trigger" {
   event_source_arn = aws_sqs_queue.ingest_queue.arn
   function_name    = aws_lambda_function.ingest_worker.arn
   batch_size       = 1
+
+  lifecycle {
+    create_before_destroy = true
+    ignore_changes        = [uuid]
+  }
 }
 
 # --- API Gateway ---
