@@ -91,7 +91,7 @@ const ChatWindow: React.FC = () => {
                 {loading && <div className="bot-message thinkning-indicator">Thinking...</div>}
                 <div ref={messagesEndRef} />
             </div>
-            <SuggestedPrompts onSelect={(prompt) => setInput(prompt)} />
+            <SuggestedPrompts onSelect={(prompt: string) => setInput(prompt)} />
             <div className="chat-input">
                 <input
                     type="text"
