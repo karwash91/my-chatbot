@@ -6,9 +6,9 @@ function App() {
   const auth = useAuth();
 
   const signOutRedirect = () => {
-    const clientId = "g1uv4bha1k8p5hdvtsfu6kn4a";
+    const clientId = import.meta.env.VITE_COGNITO_CLIENT_ID;
     const logoutUri = window.location.origin;
-    const cognitoDomain = "https://my-chatbot-0735e72f.auth.us-east-1.amazoncognito.com";
+    const cognitoDomain = `https://${import.meta.env.VITE_COGNITO_DOMAIN}`;
     window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
   };
 
