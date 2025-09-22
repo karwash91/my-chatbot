@@ -121,14 +121,16 @@ resource "aws_cognito_user_pool_client" "chatbot_client" {
     "http://localhost:5173",
     "http://localhost:5173/",
     "https://${aws_cloudfront_distribution.frontend_cdn.domain_name}",
-    "https://${aws_cloudfront_distribution.frontend_cdn.domain_name}/"
+    "https://${aws_cloudfront_distribution.frontend_cdn.domain_name}/",
+    "https://${aws_cloudfront_distribution.frontend_cdn.domain_name}/callback"
   ]
 
   logout_urls = [
     "http://localhost:5173",
     "http://localhost:5173/",
     "https://${aws_cloudfront_distribution.frontend_cdn.domain_name}",
-    "https://${aws_cloudfront_distribution.frontend_cdn.domain_name}/"
+    "https://${aws_cloudfront_distribution.frontend_cdn.domain_name}/",
+    "https://${aws_cloudfront_distribution.frontend_cdn.domain_name}/callback"
   ]
 
   supported_identity_providers = ["COGNITO"]
