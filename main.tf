@@ -12,15 +12,14 @@ provider "aws" {
   region = "us-east-1"
 }
 
-data "aws_region" "current" {}
 
-# --- S3 Bucket ---
-resource "random_id" "suffix" {
-  byte_length = 4
-}
+data "aws_region" "current" {}
+data "aws_caller_identity" "current" {}
+
 
 resource "aws_s3_bucket" "docs_bucket" {
-  bucket = "my-chatbot-docs-${random_id.suffix.hex}"
+  bucket = "my-chatbot-docs-${data.aws_region.current.name}-${data.aws_caller_identity.current.account_id}"
+  force_destroy = true
 }
 
 resource "aws_s3_bucket_versioning" "docs_versioning" {
@@ -33,7 +32,7 @@ resource "aws_s3_bucket_versioning" "docs_versioning" {
 
 # --- DynamoDB Tables ---
 resource "aws_dynamodb_table" "docs_table" {
-  name         = "my-chatbot-docs-${random_id.suffix.hex}"
+  name         = "my-chatbot-docs"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "doc_id"
   range_key    = "chunk_id"
@@ -50,7 +49,7 @@ resource "aws_dynamodb_table" "docs_table" {
 }
 
 resource "aws_dynamodb_table" "answers_table" {
-  name         = "my-chatbot-answers-${random_id.suffix.hex}"
+  name         = "my-chatbot-answers"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "session_id"
   range_key    = "timestamp"
@@ -135,20 +134,20 @@ resource "aws_cognito_user_pool_client" "chatbot_client" {
     "https://${aws_cloudfront_distribution.frontend_cdn.domain_name}/callback"
   ]
 
-  supported_identity_providers = ["COGNITO"]
+  supported_identity_providers  = ["COGNITO"]
   prevent_user_existence_errors = "ENABLED"
 }
 
 
 # --- Cognito Domain ---
 resource "aws_cognito_user_pool_domain" "chatbot_domain" {
-  domain       = "my-chatbot-${random_id.suffix.hex}"
+  domain       = "my-chatbot-${data.aws_caller_identity.current.account_id}"
   user_pool_id = aws_cognito_user_pool.chatbot_pool.id
 }
 
 # --- IAM Role and Policies ---
 resource "aws_iam_role" "lambda_role" {
-  name = "my-chatbot-lambda-role-${random_id.suffix.hex}"
+  name = "my-chatbot-lambda-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -220,7 +219,7 @@ resource "aws_lambda_function" "upload_lambda" {
     aws_iam_role_policy.lambda_extra,
     aws_iam_role_policy_attachment.lambda_basic
   ]
-  function_name = "my-chatbot-upload-${random_id.suffix.hex}"
+  function_name = "my-chatbot-upload"
   role          = aws_iam_role.lambda_role.arn
   handler       = "upload.handler"
   runtime       = "python3.11"
@@ -242,7 +241,7 @@ resource "aws_lambda_function" "ingest_worker" {
     aws_iam_role_policy.lambda_extra,
     aws_iam_role_policy_attachment.lambda_basic
   ]
-  function_name = "my-chatbot-ingest-worker-${random_id.suffix.hex}"
+  function_name = "my-chatbot-ingest-worker"
   role          = aws_iam_role.lambda_role.arn
   handler       = "ingest.handler"
   runtime       = "python3.11"
@@ -264,7 +263,7 @@ resource "aws_lambda_function" "chat_lambda" {
     aws_iam_role_policy.lambda_extra,
     aws_iam_role_policy_attachment.lambda_basic
   ]
-  function_name = "my-chatbot-chat-${random_id.suffix.hex}"
+  function_name = "my-chatbot-chat"
 
   role    = aws_iam_role.lambda_role.arn
   handler = "chat.handler"
@@ -287,7 +286,7 @@ resource "aws_lambda_function" "fetch_lambda" {
     aws_iam_role_policy.lambda_extra,
     aws_iam_role_policy_attachment.lambda_basic
   ]
-  function_name = "my-chatbot-fetch-${random_id.suffix.hex}"
+  function_name = "my-chatbot-fetch"
   role          = aws_iam_role.lambda_role.arn
   handler       = "fetch.handler"
   runtime       = "python3.11"
@@ -707,7 +706,8 @@ resource "aws_lambda_permission" "apigw_fetch" {
 }
 
 resource "aws_s3_bucket" "frontend_bucket" {
-  bucket = "my-chatbot-frontend-${random_id.suffix.hex}"
+  bucket = "my-chatbot-frontend-${data.aws_region.current.name}-${data.aws_caller_identity.current.account_id}"
+  force_destroy = true
 }
 
 
@@ -747,17 +747,9 @@ resource "aws_s3_bucket_policy" "frontend_bucket_policy" {
   })
 }
 
-# --- ACM Certificate for CloudFront (must be in us-east-1) ---
-resource "aws_acm_certificate" "frontend_cert" {
-  domain_name       = "chatbot.yourdomain.com"
-  validation_method = "DNS"
-  # NOTE: DNS validation must be performed manually via your domain registrar.
-}
-
 # --- CloudFront Distribution for Frontend ---
 resource "aws_cloudfront_distribution" "frontend_cdn" {
   enabled             = true
-  is_ipv6_enabled     = true
   comment             = "CDN for frontend static site"
   default_root_object = "index.html"
 
@@ -841,6 +833,6 @@ output "cognito_issuer_url" {
 }
 
 output "api_invoke_url" {
-  value = "${aws_api_gateway_deployment.chatbot_deployment.invoke_url}${aws_api_gateway_stage.chatbot_stage.stage_name}"
+  value = "https://${aws_api_gateway_rest_api.chatbot_api.id}.execute-api.${data.aws_region.current.name}.amazonaws.com/${aws_api_gateway_stage.chatbot_stage.stage_name}"
 }
 
