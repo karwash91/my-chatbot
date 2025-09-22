@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
+import { API_BASE_URL } from "../utils/config";
 
 type Message = {
     sender: "user" | "bot" | "error";
@@ -30,16 +31,13 @@ const ChatWindow: React.FC = () => {
         setLoading(true);
 
         try {
-            const response = await fetch(
-                "https://yf6mptf887.execute-api.us-east-1.amazonaws.com/dev/chat",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ query: trimmed }),
-                }
-            );
+            const response = await fetch(`${API_BASE_URL}/chat`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ query: trimmed }),
+            });
 
             if (!response.ok) {
                 const errorText = await response.text();

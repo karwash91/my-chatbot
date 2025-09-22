@@ -840,3 +840,7 @@ output "cognito_issuer_url" {
   value = "https://cognito-idp.${data.aws_region.current.name}.amazonaws.com/${aws_cognito_user_pool.chatbot_pool.id}"
 }
 
+output "api_invoke_url" {
+  value = "${aws_api_gateway_deployment.chatbot_deployment.invoke_url}${aws_api_gateway_stage.chatbot_stage.stage_name}"
+}
+

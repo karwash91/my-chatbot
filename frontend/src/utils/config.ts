@@ -2,9 +2,8 @@
 
 // Read from .env (make sure to add VITE_ prefix for Vite to pick it up)
 // Base URL for API requests
-export const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  "https://yf6mptf887.execute-api.us-east-1.amazonaws.com/dev";
+
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
 
 // Cognito User Pool ID for authentication
 export const COGNITO_USER_POOL_ID = import.meta.env.VITE_COGNITO_USER_POOL_ID || "";
