@@ -69,6 +69,12 @@ jobs:
           echo "VITE_COGNITO_CLIENT_ID=$(terraform output -raw cognito_client_id)" >> frontend/.env
           echo "VITE_COGNITO_DOMAIN=$(terraform output -raw cognito_domain).auth.${AWS_REGION}.amazoncognito.com" >> frontend/.env
 
+      - name: Debug .env contents
+        run: |
+          echo "---- frontend/.env ----"
+          cat frontend/.env
+          echo "-----------------------"
+
       - name: Build frontend
         working-directory: frontend
         run: npm run build
