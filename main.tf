@@ -12,6 +12,8 @@ provider "aws" {
   region = "us-east-1"
 }
 
+data "aws_region" "current" {}
+
 # --- S3 Bucket ---
 resource "random_id" "suffix" {
   byte_length = 4
@@ -821,11 +823,20 @@ output "lambda_role_name" {
 }
 
 
+
 output "cognito_client_id" {
   value = aws_cognito_user_pool_client.chatbot_client.id
 }
 
 output "cognito_domain" {
   value = aws_cognito_user_pool_domain.chatbot_domain.domain
+}
+
+output "cognito_user_pool_id" {
+  value = aws_cognito_user_pool.chatbot_pool.id
+}
+
+output "cognito_issuer_url" {
+  value = "https://cognito-idp.${data.aws_region.current.name}.amazonaws.com/${aws_cognito_user_pool.chatbot_pool.id}"
 }
 

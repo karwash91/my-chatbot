@@ -68,7 +68,8 @@ jobs:
           echo "VITE_API_BASE_URL=https://$(terraform output -raw frontend_cdn_url)" > frontend/.env
           echo "VITE_COGNITO_CLIENT_ID=$(terraform output -raw cognito_client_id)" >> frontend/.env
           echo "VITE_COGNITO_DOMAIN=$(terraform output -raw cognito_domain).auth.${AWS_REGION}.amazoncognito.com" >> frontend/.env
-
+          echo "VITE_COGNITO_ISSUER=$(terraform output -raw cognito_issuer_url)" >> frontend/.env
+      
       - name: Debug .env contents
         run: |
           echo "---- frontend/.env ----"
