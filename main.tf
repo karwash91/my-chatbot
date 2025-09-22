@@ -144,8 +144,6 @@ resource "aws_cognito_user_pool_domain" "chatbot_domain" {
 
 # --- IAM Role and Policies ---
 resource "aws_iam_role" "lambda_role" {
-  name = "my-chatbot-lambda-role"
-
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -158,6 +156,10 @@ resource "aws_iam_role" "lambda_role" {
       }
     ]
   })
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_basic" {
@@ -300,7 +302,6 @@ resource "aws_lambda_event_source_mapping" "ingest_sqs_trigger" {
 
   lifecycle {
     create_before_destroy = true
-    ignore_changes        = [uuid]
   }
 }
 
