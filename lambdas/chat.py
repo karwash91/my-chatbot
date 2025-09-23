@@ -121,7 +121,7 @@ def build_llm_request(query: str, context_chunks: List[RetrievedChunk], use_guar
         "You are a helpful DevOps assistant.\n"
         "Use only the provided Context to answer the user's question.\n"
         "If no Context is provided (or it's empty), reply exactly:\n"
-        "\"Sorry — I couldn't find any context matching your query.\"\n"
+        "\"Sorry, I couldn't find any context matching your question.\"\n"
         "Do not attempt to answer the question without context.\n"
         "Keep answers under 1200 characters. Use short, clear sentences."
     )
@@ -227,7 +227,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         return build_response(
             200,
             {
-                "answer": "Sorry — I couldn't find any context matching your query.",
+                "answer": "Sorry, I couldn't find any context matching your question.",
                 "context": [],
             },
         )
@@ -272,7 +272,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     return build_response(
         200,
         {
-            "answer": assistant_text or "Sorry — I couldn't find any context matching your query.",
+            "answer": assistant_text or "Sorry, I couldn't find any context matching your question.",
             "context": context_payload,
         },
     )

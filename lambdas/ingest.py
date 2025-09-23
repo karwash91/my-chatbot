@@ -3,99 +3,120 @@ import boto3
 import os
 import re
 import uuid
-from decimal import Decimal
 import logging
+from dataclasses import dataclass
+from decimal import Decimal
+from typing import Any, Dict, Generator, List
 
+# -----------------------------------------------------------------------------
+# Logging
+# -----------------------------------------------------------------------------
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-# AWS Lambda automatically ships logs from logging to CloudWatch
 
+# -----------------------------------------------------------------------------
+# AWS Clients
+# -----------------------------------------------------------------------------
 s3 = boto3.client("s3")
 dynamodb = boto3.resource("dynamodb")
 bedrock = boto3.client("bedrock-runtime")
 
-DOCS_BUCKET = os.environ.get("DOCS_BUCKET")
-DOCS_TABLE = os.environ.get("DOCS_TABLE")
+# -----------------------------------------------------------------------------
+# Configuration (parameterized)
+# -----------------------------------------------------------------------------
+DOCS_BUCKET: str = os.environ.get("DOCS_BUCKET", "")
+DOCS_TABLE: str = os.environ.get("DOCS_TABLE", "")
+EMBEDDING_MODEL_ID: str = os.environ.get("EMBEDDING_MODEL_ID", "amazon.titan-embed-text-v2:0")
+CHUNK_SIZE: int = int(os.environ.get("CHUNK_SIZE", "500"))
 
 table = dynamodb.Table(DOCS_TABLE)
 
-def float_to_decimal(obj):
-    """
-    Recursively convert floats in a dict/list to Decimals (for DynamoDB).
-    """
+# -----------------------------------------------------------------------------
+# Data Models
+# -----------------------------------------------------------------------------
+@dataclass
+class UploadMessage:
+    doc_id: str
+    s3_key: str
+    filename: str
+
+# -----------------------------------------------------------------------------
+# Helpers
+# -----------------------------------------------------------------------------
+def float_to_decimal(obj: Any) -> Any:
+    """Recursively convert floats to Decimals for DynamoDB storage."""
     if isinstance(obj, list):
         return [float_to_decimal(x) for x in obj]
-    elif isinstance(obj, dict):
+    if isinstance(obj, dict):
         return {k: float_to_decimal(v) for k, v in obj.items()}
-    elif isinstance(obj, float):
-        return Decimal(str(obj))  # safe: preserves precision
-    else:
-        return obj
+    if isinstance(obj, float):
+        return Decimal(str(obj))
+    return obj
 
-# Simple chunker: split text into ~500 words
-def chunk_text(text, chunk_size=500):
+
+def chunk_text(text: str, chunk_size: int = CHUNK_SIZE) -> Generator[str, None, None]:
+    """Split text into chunks of approximately `chunk_size` words."""
     words = re.split(r"\s+", text)
     for i in range(0, len(words), chunk_size):
-        yield " ".join(words[i:i+chunk_size])
+        yield " ".join(words[i:i + chunk_size])
 
-def handler(event, context):
+
+def embed_text(chunk: str) -> List[float]:
+    """Call Bedrock Titan Embeddings and return embedding vector."""
+    response = bedrock.invoke_model(
+        modelId=EMBEDDING_MODEL_ID,
+        body=json.dumps({"inputText": chunk})
+    )
+    embedding_response = json.loads(response["body"].read())
+    return embedding_response["embedding"]
+
+# -----------------------------------------------------------------------------
+# Lambda Handler
+# -----------------------------------------------------------------------------
+def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     logger.info("Received event: %s", json.dumps(event))
 
-    for record in event["Records"]:
-        msg = json.loads(record["body"])
-        doc_id = msg["doc_id"]
-        s3_key = msg["s3_key"]
-        filename = msg.get("filename")
+    for record in event.get("Records", []):
+        msg_dict = json.loads(record["body"])
+        msg = UploadMessage(
+            doc_id=msg_dict["doc_id"],
+            s3_key=msg_dict["s3_key"],
+            filename=msg_dict.get("filename", "")
+        )
 
         # Get file from S3
-        obj = s3.get_object(Bucket=DOCS_BUCKET, Key=s3_key)
-        raw_bytes = obj["Body"].read()
-
-        # Debug: print first 200 raw bytes
+        obj = s3.get_object(Bucket=DOCS_BUCKET, Key=msg.s3_key)
+        raw_bytes: bytes = obj["Body"].read()
         logger.info("Raw bytes preview: %s", raw_bytes[:200])
 
-        # Decode raw bytes as UTF-8 with replacement for errors
-        decoded = raw_bytes.decode("utf-8", errors="replace")
+        decoded: str = raw_bytes.decode("utf-8", errors="replace")
+        logger.info("Decoded preview: %s", decoded[:200])
 
-        # Debug: print decoded UTF-8 preview
-        logger.info("Decoded UTF-8 preview: %s", decoded[:200])
-
-        # Attempt to parse decoded content as JSON
+        # Parse JSON if possible, fallback to raw text
         try:
             loaded = json.loads(decoded)
-            # If loaded is a string, use it as text; otherwise, keep decoded
-            if isinstance(loaded, str):
-                text = loaded
-            else:
-                text = decoded
+            text: str = loaded if isinstance(loaded, str) else decoded
         except json.JSONDecodeError:
-            # If not JSON, just use decoded text
             text = decoded
 
-        # Debug: print final text preview
         logger.info("Final text preview: %s", text[:200])
 
-        # Split into chunks
+        # Split into chunks and embed
         for idx, chunk in enumerate(chunk_text(text)):
-            # Call Bedrock Titan Embeddings
-            response = bedrock.invoke_model(
-                modelId="amazon.titan-embed-text-v2:0",
-                body=json.dumps({"inputText": chunk})
-            )
-            embedding_response = json.loads(response["body"].read())
-            embeddings = embedding_response["embedding"]
-            
-            # Store in DynamoDB
+            embeddings = embed_text(chunk)
+
             table.put_item(
                 Item={
-                    "doc_id": doc_id,
+                    "doc_id": msg.doc_id,
                     "chunk_id": f"chunk-{idx}",
                     "text": chunk,
-                    "embedding": float_to_decimal(embeddings),  # vector stored as list
-                    "filename": filename,
+                    "embedding": float_to_decimal(embeddings),
+                    "filename": msg.filename,
                 }
             )
-
-            logger.info("Stored doc %s chunk-%d with embedding for filename %s", doc_id, idx, filename)
+            logger.info(
+                "Stored doc %s chunk-%d with embedding for filename %s",
+                msg.doc_id, idx, msg.filename
+            )
 
     return {"statusCode": 200}

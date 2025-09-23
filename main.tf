@@ -291,23 +291,6 @@ resource "aws_lambda_function" "chat_lambda" {
   }
 }
 
-resource "aws_lambda_function" "fetch_lambda" {
-  depends_on = [
-    aws_iam_role.lambda_role,
-    aws_iam_role_policy_attachment.lambda_basic,
-    aws_iam_role_policy.lambda_extra
-  ]
-  function_name = "my-chatbot-fetch"
-  role          = aws_iam_role.lambda_role.arn
-  handler       = "fetch.handler"
-  runtime       = "python3.11"
-
-  s3_bucket = aws_s3_bucket.docs_bucket.bucket
-  s3_key    = "lambdas/fetch.zip"
-
-  source_code_hash = filebase64sha256("lambdas/fetch.zip")
-}
-
 # --- Lambda Event Source Mapping ---
 resource "aws_lambda_event_source_mapping" "ingest_sqs_trigger" {
   event_source_arn = aws_sqs_queue.ingest_queue.arn
@@ -558,126 +541,6 @@ resource "aws_api_gateway_integration_response" "chat_options_integration_respon
   ]
 }
 
-# /fetch/{session_id} resource
-resource "aws_api_gateway_resource" "fetch" {
-  rest_api_id = aws_api_gateway_rest_api.chatbot_api.id
-  parent_id   = aws_api_gateway_rest_api.chatbot_api.root_resource_id
-  path_part   = "fetch"
-}
-
-resource "aws_api_gateway_resource" "fetch_id" {
-  rest_api_id = aws_api_gateway_rest_api.chatbot_api.id
-  parent_id   = aws_api_gateway_resource.fetch.id
-  path_part   = "{session_id}"
-}
-
-resource "aws_api_gateway_method" "fetch_get" {
-  rest_api_id   = aws_api_gateway_rest_api.chatbot_api.id
-  resource_id   = aws_api_gateway_resource.fetch_id.id
-  http_method   = "GET"
-  authorization = "NONE"
-}
-
-resource "aws_api_gateway_integration" "fetch_integration" {
-  rest_api_id             = aws_api_gateway_rest_api.chatbot_api.id
-  resource_id             = aws_api_gateway_resource.fetch_id.id
-  http_method             = aws_api_gateway_method.fetch_get.http_method
-  integration_http_method = "POST"
-  type                    = "AWS_PROXY"
-  uri                     = aws_lambda_function.fetch_lambda.invoke_arn
-}
-
-# --- CORS for GET /fetch/{session_id} ---
-resource "aws_api_gateway_method_response" "fetch_get_response" {
-  rest_api_id = aws_api_gateway_rest_api.chatbot_api.id
-  resource_id = aws_api_gateway_resource.fetch_id.id
-  http_method = aws_api_gateway_method.fetch_get.http_method
-  status_code = "200"
-
-  response_models = {
-    "application/json" = "Empty"
-  }
-
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin"      = true
-    "method.response.header.Access-Control-Allow-Headers"     = true
-    "method.response.header.Access-Control-Allow-Methods"     = true
-    "method.response.header.Access-Control-Allow-Credentials" = true
-  }
-}
-
-resource "aws_api_gateway_integration_response" "fetch_get_integration_response" {
-  rest_api_id = aws_api_gateway_rest_api.chatbot_api.id
-  resource_id = aws_api_gateway_resource.fetch_id.id
-  http_method = aws_api_gateway_method.fetch_get.http_method
-  status_code = "200"
-
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin"      = "'*'"
-    "method.response.header.Access-Control-Allow-Headers"     = "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
-    "method.response.header.Access-Control-Allow-Methods"     = "'GET,POST,OPTIONS'"
-    "method.response.header.Access-Control-Allow-Credentials" = "'true'"
-  }
-  depends_on = [
-    aws_api_gateway_integration.fetch_integration,
-    aws_api_gateway_method_response.fetch_get_response
-  ]
-}
-
-resource "aws_api_gateway_method" "fetch_options" {
-  rest_api_id   = aws_api_gateway_rest_api.chatbot_api.id
-  resource_id   = aws_api_gateway_resource.fetch_id.id
-  http_method   = "OPTIONS"
-  authorization = "NONE"
-}
-
-resource "aws_api_gateway_integration" "fetch_options_integration" {
-  rest_api_id = aws_api_gateway_rest_api.chatbot_api.id
-  resource_id = aws_api_gateway_resource.fetch_id.id
-  http_method = aws_api_gateway_method.fetch_options.http_method
-  type        = "MOCK"
-
-  request_templates = {
-    "application/json" = "{\"statusCode\": 200}"
-  }
-}
-
-resource "aws_api_gateway_method_response" "fetch_options_response" {
-  rest_api_id = aws_api_gateway_rest_api.chatbot_api.id
-  resource_id = aws_api_gateway_resource.fetch_id.id
-  http_method = aws_api_gateway_method.fetch_options.http_method
-  status_code = "200"
-
-  response_models = {
-    "application/json" = "Empty"
-  }
-
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin"      = true
-    "method.response.header.Access-Control-Allow-Methods"     = true
-    "method.response.header.Access-Control-Allow-Headers"     = true
-    "method.response.header.Access-Control-Allow-Credentials" = true
-  }
-}
-
-resource "aws_api_gateway_integration_response" "fetch_options_integration_response" {
-  rest_api_id = aws_api_gateway_rest_api.chatbot_api.id
-  resource_id = aws_api_gateway_resource.fetch_id.id
-  http_method = aws_api_gateway_method.fetch_options.http_method
-  status_code = "200"
-
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin"      = "'*'"
-    "method.response.header.Access-Control-Allow-Methods"     = "'GET,POST,OPTIONS'"
-    "method.response.header.Access-Control-Allow-Headers"     = "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
-    "method.response.header.Access-Control-Allow-Credentials" = "'true'"
-  }
-  depends_on = [
-    aws_api_gateway_integration.fetch_options_integration,
-    aws_api_gateway_method_response.fetch_options_response
-  ]
-}
-
 # --- API Gateway Deployment and Stage ---
 resource "aws_api_gateway_deployment" "chatbot_deployment" {
   rest_api_id = aws_api_gateway_rest_api.chatbot_api.id
@@ -685,8 +548,7 @@ resource "aws_api_gateway_deployment" "chatbot_deployment" {
   triggers = {
     redeployment = sha1(jsonencode([
       aws_api_gateway_integration.upload_integration.id,
-      aws_api_gateway_integration.chat_integration.id,
-      aws_api_gateway_integration.fetch_integration.id
+      aws_api_gateway_integration.chat_integration.id
     ]))
   }
 
@@ -711,14 +573,6 @@ resource "aws_lambda_permission" "apigw_chat" {
   statement_id  = "AllowAPIGatewayInvokeChat"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.chat_lambda.function_name
-  principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_api_gateway_rest_api.chatbot_api.execution_arn}/*/*"
-}
-
-resource "aws_lambda_permission" "apigw_fetch" {
-  statement_id  = "AllowAPIGatewayInvokeFetch"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.fetch_lambda.function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_api_gateway_rest_api.chatbot_api.execution_arn}/*/*"
 }
