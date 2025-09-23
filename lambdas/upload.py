@@ -1,4 +1,5 @@
-# Logs are sent to CloudWatch by default when using AWS Lambda.
+# Import typing essentials
+from typing import Dict, Any, Optional
 import json
 import boto3
 import uuid
@@ -10,62 +11,64 @@ import logging
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-s3 = boto3.client("s3")
-sqs = boto3.client("sqs")
 
-DOCS_BUCKET = os.environ.get("DOCS_BUCKET")
-INGEST_QUEUE_URL = os.environ.get("INGEST_QUEUE_URL")
+# Constants and AWS clients with type hints
+CONTENT_TYPE_JSON: str = "application/json"
+DOCS_BUCKET: str = os.environ.get("DOCS_BUCKET", "")
+INGEST_QUEUE_URL: str = os.environ.get("INGEST_QUEUE_URL", "")
+s3: Any = boto3.client("s3")
+sqs: Any = boto3.client("sqs")
 
-def handler(event, context):
+# Helper functions for S3 and SQS actions
+def save_to_s3(bucket: str, key: str, data: bytes) -> None:
+    s3.put_object(Bucket=bucket, Key=key, Body=data)
+    logger.info(f"Saved to S3 with key: {key}, size: {len(data)} bytes")
+
+def send_sqs_message(queue_url: str, message_body: str) -> None:
+    sqs.send_message(QueueUrl=queue_url, MessageBody=message_body)
+    logger.info(f"Sent SQS message: {message_body[:300]}")
+
+def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
     Upload Lambda:
     - Saves uploaded doc content to S3
     - Sends job message to SQS for ingestion
     """
     try:
-        body = json.loads(event.get("body", "{}"))
+        body: Dict[str, Any] = json.loads(event.get("body", "{}"))
 
-        # Expect filename + content (plain UTF-8 text)
-        filename = body.get("filename")
-        content = body.get("content", "")
+        filename: Optional[str] = body.get("filename")
+        content: str = body.get("content", "")
         logger.info(f"Received filename: {filename}")
         logger.info(f"Received content (first 200 chars): {content[:200]}")
 
         if not filename or not content:
+            logger.error("Missing filename or content")
             return {
                 "statusCode": 400,
-                "headers": {"Content-Type": "application/json"},
+                "headers": {"Content-Type": CONTENT_TYPE_JSON},
                 "body": json.dumps({"error": "Missing filename or content"})
             }
 
-        # Generate unique ID for this doc
-        doc_id = str(uuid.uuid4())
-        s3_key = f"{doc_id}/{filename}"
+        doc_id: str = str(uuid.uuid4())
+        s3_key: str = f"{doc_id}/{filename}"
 
         # For simplicity, this demo assumes UTF-8 plain text only
-        content_bytes = content.encode("utf-8", errors="replace")
+        content_bytes: bytes = content.encode("utf-8", errors="replace")
         logger.info(f"Encoded content bytes (first 200 bytes): {content_bytes[:200]}")
 
-        # Save file to S3
-        s3.put_object(Bucket=DOCS_BUCKET, Key=s3_key, Body=content_bytes)
-        logger.info(f"Saved to S3 with key: {s3_key}, size: {len(content_bytes)} bytes")
+        save_to_s3(DOCS_BUCKET, s3_key, content_bytes)
 
-        # Push job to ingest queue
-        message_body = json.dumps({
+        message_body: str = json.dumps({
             "doc_id": doc_id,
             "filename": filename,
             "s3_key": s3_key
         })
-        sqs.send_message(
-            QueueUrl=INGEST_QUEUE_URL,
-            MessageBody=message_body
-        )
-        logger.info(f"Sent SQS message: {message_body}")
-
+        send_sqs_message(INGEST_QUEUE_URL, message_body)
 
         return {
             "statusCode": 200,
-            "headers": {"Content-Type": "application/json"},
+            "headers": {"Content-Type": CONTENT_TYPE_JSON},
             "body": json.dumps({
                 "message": "File uploaded and ingest job queued",
                 "doc_id": doc_id,
@@ -74,9 +77,9 @@ def handler(event, context):
         }
 
     except Exception as e:
-        logger.error("Error in upload handler: %s", e)
+        logger.error(f"Error in upload handler: {e}")
         return {
             "statusCode": 500,
-            "headers": {"Content-Type": "application/json"},
+            "headers": {"Content-Type": CONTENT_TYPE_JSON},
             "body": json.dumps({"error": str(e)})
         }
