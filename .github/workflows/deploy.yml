@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       AWS_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
     steps:
       - name: Checkout
@@ -31,10 +33,6 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: Terraform Init
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: us-east-1
         run: terraform init -backend-config="bucket=karwash91-tfstate" -backend-config="key=chatbot/terraform.tfstate" -backend-config="region=us-east-1"
 
 
@@ -47,17 +45,9 @@ jobs:
           done
 
       - name: Terraform Apply (infra only)
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: us-east-1
         run: terraform apply -target=aws_s3_bucket.docs_bucket -target=aws_s3_bucket.frontend_bucket -auto-approve
 
       - name: Upload Lambda packages to S3
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: us-east-1
         run: |
           bucket=$(terraform output -raw docs_bucket_name)
           for fn in chat upload ingest fetch; do
@@ -65,10 +55,6 @@ jobs:
           done
 
       - name: Terraform Apply (all)
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: us-east-1
         run: terraform apply -auto-approve
 
       - name: Generate frontend .env
@@ -77,7 +63,7 @@ jobs:
           echo "VITE_COGNITO_DOMAIN=$(terraform output -raw cognito_domain).auth.${AWS_REGION}.amazoncognito.com" >> frontend/.env
           echo "VITE_COGNITO_ISSUER=$(terraform output -raw cognito_issuer_url)" >> frontend/.env
           echo "VITE_API_BASE_URL=$(terraform output -raw api_invoke_url)" >> frontend/.env
-      
+
       - name: Debug .env contents
         run: |
           echo "---- frontend/.env ----"
@@ -112,6 +98,10 @@ jobs:
   destroy:
     if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    env:
+      AWS_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
     steps:
       - name: Checkout
@@ -121,15 +111,7 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: Terraform Init
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: us-east-1
         run: terraform init -backend-config="bucket=karwash91-tfstate" -backend-config="key=chatbot/terraform.tfstate" -backend-config="region=us-east-1"
 
       - name: Terraform Destroy
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: us-east-1
         run: terraform destroy -auto-approve
