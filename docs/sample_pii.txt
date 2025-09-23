@@ -1,0 +1,31 @@
+# Sample PII-like Data for Testing
+
+Name: John Doe
+Email: john.doe@example.com
+Phone: +1-555-123-4567
+IP Address: 192.0.2.45
+
+Name: Jane Smith
+Email: jane.smith@example.org
+Phone: +1-555-987-6543
+IP Address: 198.51.100.23
+
+Name: Carlos Alvarez
+Email: carlos.alvarez@example.net
+Phone: +44-20-7946-0958
+IP Address: 203.0.113.88
+
+Name: Priya Patel
+Email: priya.patel@example.co
+Phone: +91-22-1234-5678
+IP Address: 10.25.36.47
+
+Name: Chen Wei
+Email: chen.wei@example.cn
+Phone: +86-10-1234-5678
+IP Address: 172.16.5.120
+
+Name: Fatima Ali
+Email: fatima.ali@example.me
+Phone: +971-4-123-4567
+IP Address: 192.168.1.200
