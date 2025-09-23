@@ -44,18 +44,30 @@ def handler(event, context):
         # Get file from S3
         obj = s3.get_object(Bucket=DOCS_BUCKET, Key=s3_key)
         raw_bytes = obj["Body"].read()
-        # Some files may be uploaded as JSON-escaped text (e.g., via `jq -Rs .`), which wraps the
-        # whole content as a JSON string with escape sequences. Others are plain UTF-8 text.
-        # We try to detect and decode accordingly.
+
+        # Debug: print first 200 raw bytes
+        print("Raw bytes preview:", raw_bytes[:200])
+
+        # Decode raw bytes as UTF-8 with replacement for errors
         decoded = raw_bytes.decode("utf-8", errors="replace")
+
+        # Debug: print decoded UTF-8 preview
+        print("Decoded UTF-8 preview:", decoded[:200])
+
+        # Attempt to parse decoded content as JSON
         try:
-            possible_json = json.loads(decoded)
-            if isinstance(possible_json, str):
-                text = possible_json
+            loaded = json.loads(decoded)
+            # If loaded is a string, use it as text; otherwise, keep decoded
+            if isinstance(loaded, str):
+                text = loaded
             else:
                 text = decoded
         except json.JSONDecodeError:
+            # If not JSON, just use decoded text
             text = decoded
+
+        # Debug: print final text preview
+        print("Final text preview:", text[:200])
 
         # Split into chunks
         for idx, chunk in enumerate(chunk_text(text)):

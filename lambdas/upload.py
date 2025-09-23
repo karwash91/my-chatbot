@@ -23,6 +23,8 @@ def handler(event, context):
         # Expect filename + content (plain UTF-8 text)
         filename = body.get("filename")
         content = body.get("content", "")
+        print(f"Received filename: {filename}")
+        print(f"Received content (first 200 chars): {content[:200]}")
 
         if not filename or not content:
             return {
@@ -37,19 +39,23 @@ def handler(event, context):
 
         # For simplicity, this demo assumes UTF-8 plain text only
         content_bytes = content.encode("utf-8", errors="replace")
+        print(f"Encoded content bytes (first 200 bytes): {content_bytes[:200]}")
 
         # Save file to S3
         s3.put_object(Bucket=DOCS_BUCKET, Key=s3_key, Body=content_bytes)
+        print(f"Saved to S3 with key: {s3_key}, size: {len(content_bytes)} bytes")
 
         # Push job to ingest queue
+        message_body = json.dumps({
+            "doc_id": doc_id,
+            "filename": filename,
+            "s3_key": s3_key
+        })
         sqs.send_message(
             QueueUrl=INGEST_QUEUE_URL,
-            MessageBody=json.dumps({
-                "doc_id": doc_id,
-                "filename": filename,
-                "s3_key": s3_key
-            })
+            MessageBody=message_body
         )
+        print(f"Sent SQS message: {message_body}")
 
         return {
             "statusCode": 200,
