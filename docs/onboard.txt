@@ -1,0 +1,30 @@
+Welcome to DevOpsy!
+
+Getting Started
+Welcome to DevOpsy, your all-in-one DevOps automation tool. To get started, install DevOpsy on your machine and initialize your first project.
+
+Key Commands
+Here are some essential commands to help you navigate DevOpsy:
+
+- Initialize a new project:
+  ```
+  devopsy init my-project
+  ```
+
+- Deploy your application:
+  ```
+  devopsy deploy --env production
+  ```
+
+- Check the status of your deployments:
+  ```
+  devopsy status
+  ```
+
+Best Practices
+- Always commit your changes before deploying.
+- Use environment variables to manage sensitive information.
+- Regularly update DevOpsy to the latest version for new features and security patches.
+
+Support
+If you need help, visit our documentation at https://docs.devopsy.com or contact support at support@devopsy.com. Join our community forum to connect with other users and share tips.
