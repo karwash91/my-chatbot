@@ -51,10 +51,10 @@ jobs:
 
       - name: Generate frontend .env
         run: |
-          echo "VITE_COGNITO_CLIENT_ID=$(terraform output -raw cognito_client_id)" > frontend/.env
-          echo "VITE_COGNITO_DOMAIN=$(terraform output -raw cognito_domain).auth.${AWS_REGION}.amazoncognito.com" >> frontend/.env
-          echo "VITE_COGNITO_ISSUER=$(terraform output -raw cognito_issuer_url)" >> frontend/.env
-          echo "VITE_API_BASE_URL=$(terraform output -raw api_invoke_url)" >> frontend/.env
+          echo "VITE_COGNITO_CLIENT_ID=$(terraform -chdir=terraform output -raw cognito_client_id)" > frontend/.env
+          echo "VITE_COGNITO_DOMAIN=$(terraform -chdir=terraform output -raw cognito_domain).auth.${AWS_REGION}.amazoncognito.com" >> frontend/.env
+          echo "VITE_COGNITO_ISSUER=$(terraform -chdir=terraform output -raw cognito_issuer_url)" >> frontend/.env
+          echo "VITE_API_BASE_URL=$(terraform -chdir=terraform output -raw api_invoke_url)" >> frontend/.env
 
       - name: Debug .env contents
         run: |
@@ -68,17 +68,17 @@ jobs:
 
       - name: Sync frontend build to S3
         run: |
-          aws s3 sync frontend/dist s3://$(terraform output -raw frontend_bucket) --delete
+          aws s3 sync frontend/dist s3://$(terraform -chdir=terraform output -raw frontend_bucket) --delete
 
       - name: Invalidate CloudFront cache
         run: |
           aws cloudfront create-invalidation \
-            --distribution-id $(terraform output -raw frontend_cdn_id) \
+            --distribution-id $(terraform -chdir=terraform output -raw frontend_cdn_id) \
             --paths "/*"
 
       - name: Upload docs to API
         run: |
-          API_URL=$(terraform output -raw api_invoke_url)/upload
+          API_URL=$(terraform -chdir=terraform output -raw api_invoke_url)/upload
           for file in docs/*.txt; do
             echo "Uploading $file ..."
             CONTENT=$(cat "$file" | jq -Rs .)
