@@ -1,5 +1,3 @@
-
-
 /**
  * Message.tsx
  * Encapsulates rendering for a single chat message:
@@ -15,7 +13,6 @@ type MessageProps = {
   sender: 'user' | 'bot' | 'error';
   text: string;
   filenames?: string[];
-  className?: string;
 };
 
 const Message: React.FC<MessageProps> = ({ sender, text, filenames }) => {
@@ -34,19 +31,28 @@ const Message: React.FC<MessageProps> = ({ sender, text, filenames }) => {
     ? Array.from(new Set(filenames.filter(Boolean)))
     : [];
 
+  if (isApology) {
+    return (
+      <div className={rowClass}>
+        <div className="error-message">
+          <ReactMarkdown>{text}</ReactMarkdown>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={rowClass}>
       <div className={bubbleClass}>
         <ReactMarkdown>{text}</ReactMarkdown>
-
         {sender === 'bot' && uniqueFilenames.length > 0 && !isApology && (
           <div className="container-left-aligned">
-          <div className="caption-text">
-            <span style={{ fontWeight: "bold", display: "block" }}>Sources:</span>
-            {uniqueFilenames.map((name, i) => (
-              <div key={i}>{name}</div>
-            ))}
-          </div>
+            <div className="caption-text">
+              <span style={{ fontWeight: "bold", display: "block" }}>Sources:</span>
+              {uniqueFilenames.map((name, i) => (
+                <div key={i}>{name}</div>
+              ))}
+            </div>
           </div>
         )}
       </div>
