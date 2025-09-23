@@ -29,40 +29,35 @@ jobs:
         working-directory: frontend
         run: npm ci
 
+      # --- Package Lambdas ---
+      - name: Package Lambdas
+        run: |
+          mkdir -p lambdas/build
+          cd lambdas
+          zip -r build/upload.zip upload.py
+          zip -r build/ingest.zip ingest.py
+          zip -r build/chat.zip chat.py
+          cd ..
+
+      # --- Terraform Deploy ---
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: Terraform Init (in terraform/)
-        run: terraform -chdir=terraform init -backend-config="bucket=karwash91-tfstate" -backend-config="key=chatbot/terraform.tfstate" -backend-config="region=us-east-1"
+      - name: Terraform Init
+        run: terraform init -backend-config="bucket=karwash91-tfstate" -backend-config="key=chatbot/terraform.tfstate" -backend-config="region=us-east-1"
 
+      - name: Terraform Apply (infra only)
+        run: terraform apply -target=aws_s3_bucket.docs_bucket -target=aws_s3_bucket.frontend_bucket -auto-approve
 
-      # --- Lambda Zipping ---
-      - name: Zip Lambdas
-        run: |
-          cd lambdas
-          for fn in chat ingest upload; do
-            zip -j "$fn.zip" "$fn.py"
-          done
-
-      - name: Terraform Apply (infra only, in terraform/)
-        run: terraform -chdir=terraform apply -target=aws_s3_bucket.docs_bucket -target=aws_s3_bucket.frontend_bucket -auto-approve
-
-      - name: Upload Lambda packages to S3
-        run: |
-          bucket=$(terraform -chdir=terraform output -raw docs_bucket_name)
-          for fn in chat ingest upload; do
-            aws s3 cp lambdas/$fn.zip s3://$bucket/lambdas/$fn.zip
-          done
-
-      - name: Terraform Apply (all, in terraform/)
-        run: terraform -chdir=terraform apply -auto-approve
+      - name: Terraform Apply (all)
+        run: terraform apply -auto-approve
 
       - name: Generate frontend .env
         run: |
-          echo "VITE_COGNITO_CLIENT_ID=$(terraform -chdir=terraform output -raw cognito_client_id)" > frontend/.env
-          echo "VITE_COGNITO_DOMAIN=$(terraform -chdir=terraform output -raw cognito_domain).auth.${AWS_REGION}.amazoncognito.com" >> frontend/.env
-          echo "VITE_COGNITO_ISSUER=$(terraform -chdir=terraform output -raw cognito_issuer_url)" >> frontend/.env
-          echo "VITE_API_BASE_URL=$(terraform -chdir=terraform output -raw api_invoke_url)" >> frontend/.env
+          echo "VITE_COGNITO_CLIENT_ID=$(terraform output -raw cognito_client_id)" > frontend/.env
+          echo "VITE_COGNITO_DOMAIN=$(terraform output -raw cognito_domain).auth.${AWS_REGION}.amazoncognito.com" >> frontend/.env
+          echo "VITE_COGNITO_ISSUER=$(terraform output -raw cognito_issuer_url)" >> frontend/.env
+          echo "VITE_API_BASE_URL=$(terraform output -raw api_invoke_url)" >> frontend/.env
 
       - name: Debug .env contents
         run: |
@@ -76,17 +71,17 @@ jobs:
 
       - name: Sync frontend build to S3
         run: |
-          aws s3 sync frontend/dist s3://$(terraform -chdir=terraform output -raw frontend_bucket) --delete
+          aws s3 sync frontend/dist s3://$(terraform output -raw frontend_bucket) --delete
 
       - name: Invalidate CloudFront cache
         run: |
           aws cloudfront create-invalidation \
-            --distribution-id $(terraform -chdir=terraform output -raw frontend_cdn_id) \
+            --distribution-id $(terraform output -raw frontend_cdn_id) \
             --paths "/*"
 
       - name: Upload docs to API
         run: |
-          API_URL=$(terraform -chdir=terraform output -raw api_invoke_url)/upload
+          API_URL=$(terraform output -raw api_invoke_url)/upload
           for file in docs/*.txt; do
             echo "Uploading $file ..."
             CONTENT=$(cat "$file" | jq -Rs .)
@@ -110,8 +105,8 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: Terraform Init (in terraform/)
-        run: terraform -chdir=terraform init -backend-config="bucket=karwash91-tfstate" -backend-config="key=chatbot/terraform.tfstate" -backend-config="region=us-east-1"
+      - name: Terraform Init
+        run: terraform init -backend-config="bucket=karwash91-tfstate" -backend-config="key=chatbot/terraform.tfstate" -backend-config="region=us-east-1"
 
-      - name: Terraform Destroy (in terraform/)
-        run: terraform -chdir=terraform destroy -auto-approve
+      - name: Terraform Destroy
+        run: terraform destroy -auto-approve

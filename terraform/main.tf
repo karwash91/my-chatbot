@@ -229,10 +229,8 @@ resource "aws_lambda_function" "upload_lambda" {
   handler       = "upload.handler"
   runtime       = "python3.11"
 
-  s3_bucket = aws_s3_bucket.docs_bucket.bucket
-  s3_key    = "lambdas/upload.zip"
-
-  source_code_hash = filebase64sha256("lambdas/upload.zip")
+  filename         = "${path.module}/../lambdas/build/upload.zip"
+  source_code_hash = filebase64sha256("${path.module}/../lambdas/build/upload.zip")
 
   environment {
     variables = {
@@ -248,15 +246,13 @@ resource "aws_lambda_function" "ingest_worker" {
     aws_iam_role_policy_attachment.lambda_basic,
     aws_iam_role_policy.lambda_extra
   ]
-  function_name = "my-chatbot-ingest-worker"
+  function_name = "my-chatbot-ingest"
   role          = aws_iam_role.lambda_role.arn
   handler       = "ingest.handler"
   runtime       = "python3.11"
 
-  s3_bucket = aws_s3_bucket.docs_bucket.bucket
-  s3_key    = "lambdas/ingest.zip"
-
-  source_code_hash = filebase64sha256("lambdas/ingest.zip")
+  filename         = "${path.module}/../lambdas/build/ingest.zip"
+  source_code_hash = filebase64sha256("${path.module}/../lambdas/build/ingest.zip")
 
   environment {
     variables = {
@@ -279,10 +275,8 @@ resource "aws_lambda_function" "chat_lambda" {
   runtime = "python3.11"
   timeout = 30
 
-  s3_bucket = aws_s3_bucket.docs_bucket.bucket
-  s3_key    = "lambdas/chat.zip"
-
-  source_code_hash = filebase64sha256("lambdas/chat.zip")
+  filename         = "${path.module}/../lambdas/chat/upload.zip"
+  source_code_hash = filebase64sha256("${path.module}/../lambdas/build/chat.zip")
 
   environment {
     variables = {
