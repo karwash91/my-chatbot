@@ -20,7 +20,7 @@ def handler(event, context):
     try:
         body = json.loads(event.get("body", "{}"))
 
-        # Expect filename + content (Base64 encoded or raw text)
+        # Expect filename + content (plain UTF-8 text)
         filename = body.get("filename")
         content = body.get("content", "")
 
@@ -35,15 +35,8 @@ def handler(event, context):
         doc_id = str(uuid.uuid4())
         s3_key = f"{doc_id}/{filename}"
 
-        # Heuristic to check if content looks like base64
-        base64_pattern = re.compile(r'^[A-Za-z0-9+/=]+\Z')
-        if len(content) % 4 == 0 and base64_pattern.match(content):
-            try:
-                content_bytes = base64.b64decode(content, validate=True)
-            except Exception:
-                content_bytes = content.encode("utf-8")
-        else:
-            content_bytes = content.encode("utf-8")
+        # For simplicity, this demo assumes UTF-8 plain text only
+        content_bytes = content.encode("utf-8", errors="replace")
 
         # Save file to S3
         s3.put_object(Bucket=DOCS_BUCKET, Key=s3_key, Body=content_bytes)
