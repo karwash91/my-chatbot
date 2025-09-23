@@ -99,6 +99,7 @@ button:focus-visible {
 }
 
 .suggested-prompts button {
+  color: white;
   background-color: black;
   border: none;
   border-radius: 1rem;
@@ -123,7 +124,7 @@ button:focus-visible {
 }
 .chat-input input,
 .chat-input button {
-  height: 2.5rem;
+  min-height: 2.5rem;
   padding: 0 1rem;
   line-height: 1;
   box-sizing: border-box;
