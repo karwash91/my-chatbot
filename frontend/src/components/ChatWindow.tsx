@@ -90,7 +90,7 @@ const ChatWindow: React.FC = () => {
                         }
                     >
                         <ReactMarkdown>{msg.text}</ReactMarkdown>
-                        {msg.sender === "bot" && msg.filenames && (
+                        {msg.sender === "bot" && msg.filenames && !msg.text.includes("Sorry") && (
                             <div className="caption-text">
                                 <strong>Sources:</strong>
                                 <br />
