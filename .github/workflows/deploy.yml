@@ -105,9 +105,8 @@ jobs:
               -d "{\"filename\":\"$(basename "$file")\", \"content\":$CONTENT}"
           done
 
-  destroy-on-failure:
-    needs: build-and-deploy
-    if: failure()
+  destroy:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
 
     steps:
