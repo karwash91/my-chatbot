@@ -6,6 +6,7 @@ import SuggestedPrompts from "./SuggestedPrompts";
 type Message = {
     sender: "user" | "bot" | "error";
     text: string;
+    filenames?: string[];
 };
 
 const ChatWindow: React.FC = () => {
@@ -53,7 +54,10 @@ const ChatWindow: React.FC = () => {
                 throw new Error("Invalid response from server.");
             }
 
-            setMessages((prev) => [...prev, { sender: "bot", text: data.answer }]);
+            setMessages((prev) => [
+                ...prev,
+                { sender: "bot", text: data.answer, filenames: data.context?.map((c: any) => c.filename) },
+            ]);
         } catch (e: any) {
             console.error("Fetch error:", e);
             setMessages((prev) => [
@@ -86,6 +90,13 @@ const ChatWindow: React.FC = () => {
                         }
                     >
                         <ReactMarkdown>{msg.text}</ReactMarkdown>
+                        {msg.sender === "bot" && msg.filenames && (
+                            <div className="caption-text">
+                                {msg.filenames.map((filename, i) => (
+                                    <div key={i}>{filename}</div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 ))}
                 {loading && <div className="bot-message thinking-indicator">Thinking...</div>}

@@ -45,6 +45,7 @@ def handler(event, context):
         msg = json.loads(record["body"])
         doc_id = msg["doc_id"]
         s3_key = msg["s3_key"]
+        filename = msg.get("filename")
 
         # Get file from S3
         obj = s3.get_object(Bucket=DOCS_BUCKET, Key=s3_key)
@@ -90,10 +91,11 @@ def handler(event, context):
                     "doc_id": doc_id,
                     "chunk_id": f"chunk-{idx}",
                     "text": chunk,
-                    "embedding": float_to_decimal(embeddings)  # vector stored as list
+                    "embedding": float_to_decimal(embeddings),  # vector stored as list
+                    "filename": filename,
                 }
             )
 
-            logger.info("Stored doc %s chunk-%d with embedding", doc_id, idx)
+            logger.info("Stored doc %s chunk-%d with embedding for filename %s", doc_id, idx, filename)
 
     return {"statusCode": 200}

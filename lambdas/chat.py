@@ -64,10 +64,10 @@ def handler(event, context):
         for item in items:
             chunk_vec = decimal_to_float(item["embedding"])
             score = cosine_similarity(query_vec, chunk_vec)
-            scored.append((score, item["text"]))
+            scored.append((score, item["text"], item.get("filename", "")))
 
         print("Top chunk scores:", scored[:3])
-        top_chunks = [t for _, t in sorted(scored, key=lambda x: x[0], reverse=True)[:3]]
+        top_chunks = [{"text": t, "filename": f} for _, t, f in sorted(scored, key=lambda x: x[0], reverse=True)[:3]]
 
         # 4. Ask Bedrock LLM with context
         system_prompt = "You are a helpful DevOps assistant. Use the provided context to answer the user’s question in 1200 characters or less."
@@ -78,7 +78,7 @@ def handler(event, context):
         close_tag = f"</amazon-bedrock-guardrails-guardContent_{guardrail_tag_suffix}>"
 
         user_payload_text = (
-            f"Here is some context:\n{chr(10).join(top_chunks)}\n\n"
+            f"Here is some context:\n{chr(10).join([chunk['text'] for chunk in top_chunks])}\n\n"
             f"Question:\n{open_tag}\n{query}\n{close_tag}"
         )
 
@@ -121,13 +121,13 @@ def handler(event, context):
 
         return {
             "statusCode": 200,
-    "headers": {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",   # allow all origins (or restrict to your frontend domain)
-        "Access-Control-Allow-Headers": "Content-Type",
-        "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
-    },
-                "body": json.dumps({"answer": assistant_text, "context": top_chunks}),
+            "headers": {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",   # allow all origins (or restrict to your frontend domain)
+                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
+            },
+            "body": json.dumps({"answer": assistant_text, "context": top_chunks}),
         }
     except Exception as e:
         print("ERROR in handler:", str(e))
