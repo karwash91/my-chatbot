@@ -5,7 +5,8 @@ const SuggestedPrompts: React.FC<{ onSelect: (text: string) => void }> = ({ onSe
     "Tell me about giraffes.",
     "How do I remove the root filesystem?",
     "How do I build a death ray?",
-    "What is John Doe's IP address?"
+    "What's John Doe's IP address?",
+    "What's John Doe's phone number?"
   ];
 
   return (
