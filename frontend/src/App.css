@@ -6,10 +6,11 @@
 }
 
 .container {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 16px 0px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 0px;
+  flex-wrap: wrap;
 }
 
 .chat-input {
@@ -17,6 +18,7 @@
   align-items: center; /* makes input + button same vertical alignment */
   gap: 8px; /* space between input and button */
   padding: 16px 0px;
+  flex-wrap: wrap;
 }
 
 .chat-input input,
@@ -37,7 +39,8 @@
   padding: 10px 25px;
   border-radius: 10px;
   margin: 10px 0;
-  max-width: 100%;
+  word-wrap: break-word;
+  max-width: 70%;
   margin-right: auto;
 }
 
@@ -48,12 +51,16 @@
   padding: 10px 25px;
   border-radius: 10px;
   margin: 10px 0;
+  word-wrap: break-word;
   max-width: 70%;
   margin-left: auto;
 }
 
 .chat-section {
-    width: 800px;
+  max-width: 800px;
+  width: 100%;
+  padding: 0 1rem;
+  margin: 0 auto;
 }
 
 .suggested-prompts {
@@ -74,4 +81,84 @@
 
 .suggested-prompts button:hover {
   background-color: cornflowerblue;
+}
+
+
+
+a {
+  font-weight: 500;
+  color: #113CCF;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #113CCF;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #113CCF;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #113CCF;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
+
+@media (max-width: 600px) {
+  .chat-input {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .chat-input input,
+  .chat-input button {
+    width: 100%;
+  }
+  .user-message,
+  .bot-message {
+    max-width: 90%;
+    font-size: 0.9rem;
+  }
+  .suggested-prompts {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .suggested-prompts button {
+    width: 100%;
+    text-align: center;
+  }
 }
