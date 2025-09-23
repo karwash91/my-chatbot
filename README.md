@@ -116,3 +116,12 @@ Logging & monitoring
 State & governance
 	•	Terraform remote state in s3://karwash91-tfstate/chatbot/terraform.tfstate.
 	•	CI enforces consistent deployments; a separate manual “destroy” job exists for cleanup.
+
+Upload a doc (script example)
+
+API_URL="<api-invoke-url>/upload"
+for f in docs/*.txt; do
+  echo "Uploading $f"
+  json=$(jq -n --arg fn "$(basename "$f")" --rawfile c "$f" '{filename:$fn, content:$c}')
+  curl -s -X POST "$API_URL" -H "Content-Type: application/json" -d "$json" | jq .
+done
