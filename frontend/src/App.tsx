@@ -17,14 +17,14 @@ function App() {
     console.log("User profile:", auth.user?.profile);
     return (
       <div>
-        {/* Load the rest of your app here */}
+        <div className="container header-bar">
+          <span className="greeting">Hello, {auth.user?.profile.email}</span>
+          <button className="signout-btn" onClick={() => auth.removeUser()}>Sign Out</button>
+        </div>
+        <hr className="divider" />
         <AppRouter />
         <div className="container">
-          Hello, {auth.user?.profile.email}
-          <button onClick={() => auth.removeUser()}>Sign Out</button>
-        </div>
-        <div className="container">
-          <p className="caption-text">Need help? Contact <a href='mailto:example@example.com'>example@example.com</a></p>
+          <p className="caption-text">Need help? Contact <a href='mailto:example@example.com'>example@example.com</a> | <a href='https://github.com/karwash91/my-chatbot' target='_blank'>GitHub</a></p>
         </div>
       </div>
     );
