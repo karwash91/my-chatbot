@@ -3,6 +3,7 @@ import boto3
 import uuid
 import base64
 import os
+import re
 
 s3 = boto3.client("s3")
 sqs = boto3.client("sqs")
@@ -34,12 +35,14 @@ def handler(event, context):
         doc_id = str(uuid.uuid4())
         s3_key = f"{doc_id}/{filename}"
 
-        # Try to decode as base64 only if valid, else treat as plain UTF-8 text.
-        # This avoids corrupting plain text that is not actually base64.
-        try:
-            # Attempt base64 decode with validation; if it fails, fallback to UTF-8
-            content_bytes = base64.b64decode(content, validate=True)
-        except Exception:
+        # Heuristic to check if content looks like base64
+        base64_pattern = re.compile(r'^[A-Za-z0-9+/=]+\Z')
+        if len(content) % 4 == 0 and base64_pattern.match(content):
+            try:
+                content_bytes = base64.b64decode(content, validate=True)
+            except Exception:
+                content_bytes = content.encode("utf-8")
+        else:
             content_bytes = content.encode("utf-8")
 
         # Save file to S3
