@@ -1,5 +1,4 @@
-node_modules/
+frontend/node_modules/
 frontend/dist/
-*.zip
-.terraform/
-terraform.tfstate*
+terraform/.terraform/
+terraform/terraform.tfstate*

@@ -44,13 +44,13 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: Terraform Init
-        run: terraform init -backend-config="bucket=karwash91-tfstate" -backend-config="key=chatbot/terraform.tfstate" -backend-config="region=us-east-1"
+        run: terraform -chdir=terraform init -backend-config="bucket=karwash91-tfstate" -backend-config="key=chatbot/terraform.tfstate" -backend-config="region=us-east-1"
 
       - name: Terraform Apply (infra only)
-        run: terraform apply -target=aws_s3_bucket.docs_bucket -target=aws_s3_bucket.frontend_bucket -auto-approve
+        run: terraform -chdir=terraform apply -target=aws_s3_bucket.docs_bucket -target=aws_s3_bucket.frontend_bucket -auto-approve
 
       - name: Terraform Apply (all)
-        run: terraform apply -auto-approve
+        run: terraform -chdir=terraform apply -auto-approve
 
       - name: Generate frontend .env
         run: |
@@ -106,7 +106,7 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: Terraform Init
-        run: terraform init -backend-config="bucket=karwash91-tfstate" -backend-config="key=chatbot/terraform.tfstate" -backend-config="region=us-east-1"
+        run: terraform -chdir=terraform init -backend-config="bucket=karwash91-tfstate" -backend-config="key=chatbot/terraform.tfstate" -backend-config="region=us-east-1"
 
       - name: Terraform Destroy
-        run: terraform destroy -auto-approve
+        run: terraform -chdir=terraform destroy -auto-approve

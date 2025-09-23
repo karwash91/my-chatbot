@@ -655,7 +655,6 @@ resource "aws_cloudfront_distribution" "frontend_cdn" {
   }
 }
 
-
 output "frontend_cdn_url" {
   value = aws_cloudfront_distribution.frontend_cdn.domain_name
 }
