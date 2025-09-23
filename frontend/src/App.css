@@ -1,28 +1,5 @@
 /* ============================================================
-   Feedback Links
-   ============================================================ */
-
-.feedback-links {
-  display: flex;
-  gap: 0.75rem;
-  font-size: 0.85rem;
-  color: #9AA0A6;
-  margin-top: 0.25rem;
-}
-
-.feedback-links span {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  transition: color 0.2s ease;
-}
-
-.feedback-links span:hover {
-  color: #E0E0E0;
-}
-/* ============================================================
-   Reset / Base Styles
+   Base Styles
    ============================================================ */
 
 body {
@@ -75,7 +52,7 @@ a:hover {
 }
 
 .chat-section {
-  max-width: 50rem;
+  max-width: 55rem;
   width: 100%;
   margin: 0 auto;
 }
@@ -274,4 +251,28 @@ hr.divider {
     width: 100%;
     text-align: center;
   }
+}
+
+/* ============================================================
+   Feedback Links
+   ============================================================ */
+
+.feedback-links {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  color: #9AA0A6;
+  margin-top: 0.25rem;
+}
+
+.feedback-links span {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: color 0.2s ease;
+}
+
+.feedback-links span:hover {
+  color: #E0E0E0;
 }
