@@ -275,7 +275,7 @@ resource "aws_lambda_function" "chat_lambda" {
   runtime = "python3.11"
   timeout = 30
 
-  filename         = "${path.module}/../lambdas/chat/upload.zip"
+  filename         = "${path.module}/../lambdas/chat.zip"
   source_code_hash = filebase64sha256("${path.module}/../lambdas/chat.zip")
 
   environment {
