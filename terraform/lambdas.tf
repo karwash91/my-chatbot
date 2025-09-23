@@ -21,7 +21,7 @@ resource "aws_lambda_function" "upload_lambda" {
   }
 }
 
-resource "aws_lambda_function" "ingest_worker" {
+resource "aws_lambda_function" "ingest_lambda" {
   depends_on = [
     aws_iam_role.lambda_role,
     aws_iam_role_policy_attachment.lambda_basic,
@@ -69,11 +69,11 @@ resource "aws_lambda_function" "chat_lambda" {
 # --- Lambda Event Source Mapping ---
 resource "aws_lambda_event_source_mapping" "ingest_sqs_trigger" {
   event_source_arn = aws_sqs_queue.ingest_queue.arn
-  function_name    = aws_lambda_function.ingest_worker.arn
+  function_name    = aws_lambda_function.ingest_lambda.arn
   batch_size       = 1
 
   depends_on = [
-    aws_lambda_function.ingest_worker,
+    aws_lambda_function.ingest_lambda,
     aws_sqs_queue.ingest_queue
   ]
 
