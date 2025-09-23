@@ -221,6 +221,8 @@ resource "aws_lambda_function" "upload_lambda" {
   s3_bucket = aws_s3_bucket.docs_bucket.bucket
   s3_key    = "lambdas/upload.zip"
 
+  source_code_hash = filebase64sha256("lambdas/upload.zip")
+
   environment {
     variables = {
       DOCS_BUCKET      = aws_s3_bucket.docs_bucket.bucket
@@ -242,6 +244,8 @@ resource "aws_lambda_function" "ingest_worker" {
 
   s3_bucket = aws_s3_bucket.docs_bucket.bucket
   s3_key    = "lambdas/ingest.zip"
+
+  source_code_hash = filebase64sha256("lambdas/ingest.zip")
 
   environment {
     variables = {
@@ -267,6 +271,8 @@ resource "aws_lambda_function" "chat_lambda" {
   s3_bucket = aws_s3_bucket.docs_bucket.bucket
   s3_key    = "lambdas/chat.zip"
 
+  source_code_hash = filebase64sha256("lambdas/chat.zip")
+
   environment {
     variables = {
       DOC_TABLE = aws_dynamodb_table.docs_table.name
@@ -287,6 +293,8 @@ resource "aws_lambda_function" "fetch_lambda" {
 
   s3_bucket = aws_s3_bucket.docs_bucket.bucket
   s3_key    = "lambdas/fetch.zip"
+
+  source_code_hash = filebase64sha256("lambdas/fetch.zip")
 }
 
 # --- Lambda Event Source Mapping ---
