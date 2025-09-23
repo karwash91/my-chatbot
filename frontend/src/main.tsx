@@ -5,9 +5,9 @@ import App from './App.tsx'
 import { AuthProvider } from "react-oidc-context";
 
 const cognitoAuthConfig = {
-  authority: import.meta.env.VITE_COGNITO_ISSUER, // <-- use issuer here
+  authority: import.meta.env.VITE_COGNITO_ISSUER,
   client_id: import.meta.env.VITE_COGNITO_CLIENT_ID,
-  redirect_uri: window.location.origin, // dynamic based on where app runs
+  redirect_uri: window.location.origin,
   response_type: "code",
   scope: "aws.cognito.signin.user.admin email openid phone profile",
 };
