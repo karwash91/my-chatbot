@@ -88,7 +88,7 @@ const ChatWindow: React.FC = () => {
                         <ReactMarkdown>{msg.text}</ReactMarkdown>
                     </div>
                 ))}
-                {loading && <div className="bot-message thinkning-indicator">Thinking...</div>}
+                {loading && <div className="bot-message thinking-indicator">Thinking...</div>}
                 <div ref={messagesEndRef} />
             </div>
             <SuggestedPrompts onSelect={(prompt: string) => setInput(prompt)} />

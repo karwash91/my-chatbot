@@ -19,9 +19,12 @@ function App() {
       <div>
         {/* Load the rest of your app here */}
         <AppRouter />
-        <div className="auth-bar">
+        <div className="container">
           Hello, {auth.user?.profile.email}
           <button onClick={() => auth.removeUser()}>Sign Out</button>
+        </div>
+        <div className="container">
+          <p className="caption-text">Need help? Contact <a href='mailto:example@example.com'>example@example.com</a></p>
         </div>
       </div>
     );

@@ -1,5 +1,5 @@
 #root {
-  max-width: 1280px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
@@ -11,6 +11,8 @@
   gap: 8px;
   padding: 16px 0px;
   flex-wrap: wrap;
+  margin: 0 auto;       /* centers the container */
+  justify-content: center; /* centers children horizontally */
 }
 
 .chat-input {
@@ -39,7 +41,6 @@
   border-radius: 10px;
   margin: 10px 0;
   word-wrap: break-word;
-  max-width: 70%;
   margin-right: auto;
 }
 
@@ -58,7 +59,6 @@
 .chat-section {
   max-width: 800px;
   width: 100%;
-  padding: 0 1rem;
   margin: 0 auto;
 }
 
@@ -74,7 +74,7 @@
   border: none;
   border-radius: 16px;
   padding: 6px 12px;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   cursor: pointer;
 }
 
@@ -82,15 +82,13 @@
   background-color: cornflowerblue;
 }
 
-
-
 a {
   font-weight: 500;
-  color: #113CCF;
+  color: blue;
   text-decoration: inherit;
 }
 a:hover {
-  color: #113CCF;
+  color: blue;
 }
 
 body {
@@ -112,29 +110,16 @@ button {
   padding: 0.6em 1.2em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: black;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 button:hover {
-  border-color: #113CCF;
+  border-color: blue;
 }
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #113CCF;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
 }
 
 @media (max-width: 600px) {
@@ -158,4 +143,20 @@ button:focus-visible {
     width: 100%;
     text-align: center;
   }
+}
+/* Caption text styling */
+.caption-text {
+  font-size: 0.85rem;
+  color: gray;
+}
+
+.thinking-indicator {
+  opacity: 1;
+  animation: blink 2s infinite;
+}
+
+@keyframes blink {
+  0%   { opacity: 1; }
+  50%  { opacity: 0.3; }
+  100% { opacity: 1; }
 }
