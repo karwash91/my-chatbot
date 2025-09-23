@@ -70,7 +70,7 @@
 }
 
 .suggested-prompts button {
-  background-color: blue;
+  background-color: black;
   border: none;
   border-radius: 16px;
   padding: 6px 12px;
@@ -79,7 +79,7 @@
 }
 
 .suggested-prompts button:hover {
-  background-color: cornflowerblue;
+  background-color: blue;
 }
 
 a {

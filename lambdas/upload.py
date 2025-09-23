@@ -34,9 +34,11 @@ def handler(event, context):
         doc_id = str(uuid.uuid4())
         s3_key = f"{doc_id}/{filename}"
 
-        # If content looks base64 encoded, decode it
+        # Try to decode as base64 only if valid, else treat as plain UTF-8 text.
+        # This avoids corrupting plain text that is not actually base64.
         try:
-            content_bytes = base64.b64decode(content)
+            # Attempt base64 decode with validation; if it fails, fallback to UTF-8
+            content_bytes = base64.b64decode(content, validate=True)
         except Exception:
             content_bytes = content.encode("utf-8")
 
