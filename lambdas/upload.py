@@ -62,6 +62,7 @@ def handler(event, context):
         )
         logger.info(f"Sent SQS message: {message_body}")
 
+
         return {
             "statusCode": 200,
             "headers": {"Content-Type": "application/json"},
