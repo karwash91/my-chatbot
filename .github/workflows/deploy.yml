@@ -54,6 +54,10 @@ jobs:
         run: terraform apply -target=aws_s3_bucket.docs_bucket -target=aws_s3_bucket.frontend_bucket -auto-approve
 
       - name: Upload Lambda packages to S3
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: us-east-1
         run: |
           bucket=$(terraform output -raw docs_bucket_name)
           for fn in chat upload ingest fetch; do
