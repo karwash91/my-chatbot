@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
-import ReactMarkdown from "react-markdown";
 import { API_BASE_URL } from "../utils/config";
 import SuggestedPrompts from "./SuggestedPrompts";
+import Message from "./Message";
 
-type Message = {
+type ChatMessage = {
     sender: "user" | "bot" | "error";
     text: string;
     filenames?: string[];
 };
 
 const ChatWindow: React.FC = () => {
-    const [messages, setMessages] = useState<Message[]>([]);
+    const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -79,29 +79,18 @@ const ChatWindow: React.FC = () => {
         <div className="chat-window">
             <div className="messages">
                 {messages.map((msg, idx) => (
-                    <div
+                    <Message
                         key={idx}
-                        className={
-                            msg.sender === "user"
-                                ? "user-message"
-                                : msg.sender === "bot"
-                                    ? "bot-message"
-                                    : "error-message"
-                        }
-                    >
-                        <ReactMarkdown>{msg.text}</ReactMarkdown>
-                        {msg.sender === "bot" && msg.filenames && !msg.text.includes("Sorry") && (
-                            <div className="caption-text">
-                                <strong>Sources:</strong>
-                                <br />
-                                {[...new Set(msg.filenames)].map((filename, i) => (
-                                    <div key={i}>{filename}</div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
+                        sender={msg.sender}
+                        text={msg.text}
+                        filenames={msg.filenames}
+                    />
                 ))}
-                {loading && <div className="bot-message thinking-indicator">Thinking...</div>}
+                {loading && (
+                    <div className="bot-message">
+                        <p className="thinking-indicator">Thinking...</p>
+                    </div>
+                )}
                 <div ref={messagesEndRef} />
             </div>
             <SuggestedPrompts onSelect={(prompt: string) => setInput(prompt)} />

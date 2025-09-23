@@ -17,13 +17,16 @@ function App() {
     console.log("User profile:", auth.user?.profile);
     return (
       <div>
-        <div className="container header-bar">
-          <span className="greeting">Hello, {auth.user?.profile.email}</span>
+        <div>
+          <h1 className="app-title">My Chatbot</h1>
+        </div>
+        <div className="container-centered header-bar">
+          <span className="greeting">  Hello, {String(auth.user?.profile["cognito:username"] ?? "")}!</span>
           <button className="signout-btn" onClick={() => auth.removeUser()}>Sign Out</button>
         </div>
         <hr className="divider" />
         <AppRouter />
-        <div className="container">
+        <div className="container-centered">
           <p className="caption-text">Need help? Contact <a href='mailto:example@example.com'>example@example.com</a> | <a href='https://github.com/karwash91/my-chatbot' target='_blank'>GitHub</a></p>
         </div>
       </div>
@@ -31,7 +34,7 @@ function App() {
   }
 
   return (
-    <div className="container">
+    <div className="container-centered">
       <button onClick={() => auth.signinRedirect()}>Sign In</button>
     </div>
   );

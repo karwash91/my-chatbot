@@ -1,4 +1,26 @@
+/* ============================================================
+   Feedback Links
+   ============================================================ */
 
+.feedback-links {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  color: #9AA0A6;
+  margin-top: 0.25rem;
+}
+
+.feedback-links span {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: color 0.2s ease;
+}
+
+.feedback-links span:hover {
+  color: #E0E0E0;
+}
 /* ============================================================
    Reset / Base Styles
    ============================================================ */
@@ -9,15 +31,17 @@ body {
   place-items: center;
   min-width: 20rem;
   min-height: 100vh;
+  background-color: #121212;
+  color: #E0E0E0;
 }
 
 a {
   font-weight: 500;
-  color: blue;
+  color: #8AB4F8;
   text-decoration: inherit;
 }
 a:hover {
-  color: blue;
+  color: #FFFFFF;
 }
 
 #root {
@@ -31,14 +55,23 @@ a:hover {
    Layout
    ============================================================ */
 
-.container {
+.container-centered {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   padding: 1rem 0rem;
   flex-wrap: wrap;
   margin: 0 auto;
-  justify-content: center;
+}
+
+.container-left-aligned {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  padding: 1rem 0rem;
+  flex-wrap: wrap;
 }
 
 .chat-section {
@@ -73,7 +106,14 @@ h1 {
 }
 .caption-text {
   font-size: 0.85rem;
-  color: gray;
+  color: #9AA0A6;
+}
+
+.app-title {
+  font-size: 3.5rem;
+  font-weight: 600;
+  margin: 0;
+  text-align: left;
 }
 
 /* ============================================================
@@ -86,12 +126,14 @@ button {
   padding: 0.6em 1.2em;
   font-weight: 500;
   font-family: inherit;
-  background-color: black;
+  background-color: #2D2D2D;
+  color: #E0E0E0;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 button:hover {
-  border-color: blue;
+  background-color: #3C4043;
+  border-color: cornflowerblue;
 }
 button:focus,
 button:focus-visible {
@@ -99,16 +141,16 @@ button:focus-visible {
 }
 
 .suggested-prompts button {
-  color: white;
-  background-color: black;
-  border: none;
   border-radius: 1rem;
+  border: none;
   padding: 0.25rem 0.75rem;
   font-size: 0.9rem;
+  color: white;
+  background-color: #3C4043;
   cursor: pointer;
 }
 .suggested-prompts button:hover {
-  background-color: blue;
+  background-color: #5F6368;
 }
 
 /* ============================================================
@@ -129,8 +171,24 @@ button:focus-visible {
   line-height: 1;
   box-sizing: border-box;
 }
+
+.chat-input button {
+  min-height: 3rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+}
 .chat-input input {
   flex: 1;
+  min-height: 3rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #3C4043;
+  font-family: inherit;
+  font-size: 1rem;
+  box-sizing: border-box;
+  background: #181818;
+  color: #E0E0E0;
+  transition: border-color 0.2s;
 }
 
 /* ============================================================
@@ -138,22 +196,25 @@ button:focus-visible {
    ============================================================ */
 
 .bot-message {
-  text-align: left;
+  display: block;
   padding: 0.5rem 1.5rem;
+  margin: 0.5rem 0 0.5rem auto;
   border-radius: 0.5rem;
-  margin: 0.5rem 0;
   word-wrap: break-word;
-  margin-right: auto;
+  background-color: #2D2D2D;
+  color: #E0E0E0;
+  text-align: left;
 }
 .user-message {
-  background-color: blue;
-  color: white;
-  text-align: right;
+  display: block;
   padding: 0.5rem 1.5rem;
-  border-radius: 0.5rem;
   margin: 0.5rem 0;
+  border-radius: 0.5rem;
   word-wrap: break-word;
   max-width: fit-content;
+  background-color: #1A73E8;
+  color: white;
+  text-align: right;
   margin-left: auto;
 }
 
@@ -184,7 +245,7 @@ button:focus-visible {
 
 hr.divider {
   border: none;
-  border-top: 1px solid gray;
+  border-top: 1px solid #3C4043;
   margin-bottom: 2.5rem;
 }
 
