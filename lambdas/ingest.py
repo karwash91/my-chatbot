@@ -4,6 +4,11 @@ import os
 import re
 import uuid
 from decimal import Decimal
+import logging
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+# AWS Lambda automatically ships logs from logging to CloudWatch
 
 s3 = boto3.client("s3")
 dynamodb = boto3.resource("dynamodb")
@@ -34,7 +39,7 @@ def chunk_text(text, chunk_size=500):
         yield " ".join(words[i:i+chunk_size])
 
 def handler(event, context):
-    print("Received event:", json.dumps(event))
+    logger.info("Received event: %s", json.dumps(event))
 
     for record in event["Records"]:
         msg = json.loads(record["body"])
@@ -46,13 +51,13 @@ def handler(event, context):
         raw_bytes = obj["Body"].read()
 
         # Debug: print first 200 raw bytes
-        print("Raw bytes preview:", raw_bytes[:200])
+        logger.info("Raw bytes preview: %s", raw_bytes[:200])
 
         # Decode raw bytes as UTF-8 with replacement for errors
         decoded = raw_bytes.decode("utf-8", errors="replace")
 
         # Debug: print decoded UTF-8 preview
-        print("Decoded UTF-8 preview:", decoded[:200])
+        logger.info("Decoded UTF-8 preview: %s", decoded[:200])
 
         # Attempt to parse decoded content as JSON
         try:
@@ -67,7 +72,7 @@ def handler(event, context):
             text = decoded
 
         # Debug: print final text preview
-        print("Final text preview:", text[:200])
+        logger.info("Final text preview: %s", text[:200])
 
         # Split into chunks
         for idx, chunk in enumerate(chunk_text(text)):
@@ -89,6 +94,6 @@ def handler(event, context):
                 }
             )
 
-            print(f"Stored doc {doc_id} chunk-{idx} with embedding")
+            logger.info("Stored doc %s chunk-%d with embedding", doc_id, idx)
 
     return {"statusCode": 200}
