@@ -17,7 +17,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # --- Frontend Build ---
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -29,14 +28,12 @@ jobs:
         working-directory: frontend
         run: npm ci
 
-      # --- Package Lambdas ---
       - name: Package Lambdas
         run: |
-          mkdir -p lambdas/build
           cd lambdas
-          zip -r build/upload.zip upload.py
-          zip -r build/ingest.zip ingest.py
-          zip -r build/chat.zip chat.py
+          zip -r upload.zip upload.py
+          zip -r ingest.zip ingest.py
+          zip -r chat.zip chat.py
           cd ..
 
       # --- Terraform Deploy ---
