@@ -92,6 +92,8 @@ const ChatWindow: React.FC = () => {
                         <ReactMarkdown>{msg.text}</ReactMarkdown>
                         {msg.sender === "bot" && msg.filenames && (
                             <div className="caption-text">
+                                <strong>Sources:</strong>
+                                <br />
                                 {msg.filenames.map((filename, i) => (
                                     <div key={i}>{filename}</div>
                                 ))}
