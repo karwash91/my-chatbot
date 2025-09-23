@@ -1,4 +1,4 @@
-# Sample PII-like Data for Testing
+Sample PII-like Data for Testing
 
 Name: John Doe
 Email: john.doe@example.com
