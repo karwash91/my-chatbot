@@ -94,7 +94,7 @@ const ChatWindow: React.FC = () => {
                             <div className="caption-text">
                                 <strong>Sources:</strong>
                                 <br />
-                                {Array.from(new Set(msg.filenames)).map((filename, i) => (
+                                {[...new Set(msg.filenames)].map((filename, i) => (
                                     <div key={i}>{filename}</div>
                                 ))}
                             </div>

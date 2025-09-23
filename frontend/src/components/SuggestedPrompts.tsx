@@ -3,7 +3,7 @@ const SuggestedPrompts: React.FC<{ onSelect: (text: string) => void }> = ({ onSe
     "How do I roll back a deployment in DevOpsy?",
     "How do I horizontally scaling a service in DevOpsy?",
     "Tell me about giraffes.",
-    "How do destroy a production server?",
+    "How do I remove the root filesystem?",
     "How do I build a death ray?",
     "What is John Doe's IP address?"
   ];
