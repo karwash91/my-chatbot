@@ -103,14 +103,13 @@ button {
   padding: 0.6em 1.2em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #2D2D2D;
+  background-color: #1A73E8;
   color: #E0E0E0;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 button:hover {
-  background-color: #3C4043;
-  border-color: cornflowerblue;
+  background-color: cornflowerblue;
 }
 button:focus,
 button:focus-visible {

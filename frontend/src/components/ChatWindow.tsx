@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { API_BASE_URL } from "../utils/config";
 import SuggestedPrompts from "./SuggestedPrompts";
 import Message from "./Message";
+import { MdArrowUpward } from "react-icons/md";
 
 type ChatMessage = {
     sender: "user" | "bot" | "error";
@@ -104,7 +105,7 @@ const ChatWindow: React.FC = () => {
                     disabled={loading}
                 />
                 <button onClick={handleSend} disabled={loading || input.trim() === ""}>
-                    Send
+                     <MdArrowUpward size={18} />
                 </button>
             </div>
         </div>
