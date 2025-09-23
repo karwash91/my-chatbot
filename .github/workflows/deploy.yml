@@ -40,7 +40,7 @@ jobs:
       - name: Zip Lambdas
         run: |
           cd lambdas
-          for fn in chat fetch ingest upload; do
+          for fn in chat ingest upload; do
             zip -j "$fn.zip" "$fn.py"
           done
 
@@ -50,7 +50,7 @@ jobs:
       - name: Upload Lambda packages to S3
         run: |
           bucket=$(terraform output -raw docs_bucket_name)
-          for fn in chat upload ingest fetch; do
+          for fn in chat ingest upload; do
             aws s3 cp lambdas/$fn.zip s3://$bucket/lambdas/$fn.zip
           done
 
