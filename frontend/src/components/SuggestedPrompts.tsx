@@ -2,7 +2,7 @@ const SuggestedPrompts: React.FC<{ onSelect: (text: string) => void }> = ({ onSe
   const prompts = [
     "How do I get started using DevOpsy?",
     "How do I roll back a deployment in DevOpsy?",
-    "How do I horizontally scale a DevOpsy service?",
+    "I want to scale my deployment my-awesome-svc to 17 replicas.",
     "How do I remove the root filesystem?",
     "Tell me about giraffes.",
     "How do I build a death ray?",
