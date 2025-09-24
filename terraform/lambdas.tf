@@ -13,6 +13,8 @@ resource "aws_lambda_function" "upload_lambda" {
   filename         = "${path.module}/../lambdas/upload.zip"
   source_code_hash = filebase64sha256("${path.module}/../lambdas/upload.zip")
 
+  memory_size = 512
+
   environment {
     variables = {
       DOCS_BUCKET      = aws_s3_bucket.docs_bucket.bucket
