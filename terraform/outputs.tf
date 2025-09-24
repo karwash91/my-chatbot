@@ -18,10 +18,6 @@ output "docs_table_name" {
   value = aws_dynamodb_table.docs_table.name
 }
 
-output "answers_table_name" {
-  value = aws_dynamodb_table.answers_table.name
-}
-
 output "lambda_role_name" {
   value = aws_iam_role.lambda_role.name
 }
