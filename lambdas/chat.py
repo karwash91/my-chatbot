@@ -21,7 +21,7 @@ BEDROCK_MODEL_ID: str = os.environ.get(
     "arn:aws:bedrock:us-east-1:588738567290:inference-profile/us.anthropic.claude-sonnet-4-20250514-v1:0",
 )
 BEDROCK_GUARDRAIL_ID: Optional[str] = os.environ.get("BEDROCK_GUARDRAIL_ID", "rqkveuut7fzm")
-BEDROCK_GUARDRAIL_VERSION: str = os.environ.get("BEDROCK_GUARDRAIL_VERSION", "4")
+BEDROCK_GUARDRAIL_VERSION: str = os.environ.get("BEDROCK_GUARDRAIL_VERSION", "5")
 
 # Retrieval tuning
 TOP_K: int = int(os.environ.get("RETRIEVAL_TOP_K", "3"))
