@@ -1,3 +1,5 @@
+import { MdInfoOutline } from "react-icons/md";
+
 const SuggestedPrompts: React.FC<{ onSelect: (text: string) => void }> = ({ onSelect }) => {
   const prompts = [
     "How do I get started using DevOpsy?",
@@ -12,7 +14,7 @@ const SuggestedPrompts: React.FC<{ onSelect: (text: string) => void }> = ({ onSe
 
   return (
     <div>
-        <h4 style={{ textAlign: "left" }}>Suggested prompts</h4>
+        <div className="suggested-prompts-title">< MdInfoOutline /> Suggested prompts</div>
     <div className="suggested-prompts">
       {prompts.map((prompt, idx) => (
         <button key={idx} onClick={() => onSelect(prompt)}>

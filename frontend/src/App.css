@@ -37,7 +37,6 @@ a:hover {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 1rem 0rem;
   flex-wrap: wrap;
   margin: 0 auto;
 }
@@ -47,7 +46,6 @@ a:hover {
   align-items: center;
   justify-content: flex-start;
   gap: 0.5rem;
-  padding: 1rem 0rem;
   flex-wrap: wrap;
 }
 
@@ -71,6 +69,9 @@ a:hover {
 }
 .signout-btn {
   text-align: right;
+  align-items: center;
+  display: flex;
+  gap: .375rem;
 }
 
 /* ============================================================
@@ -91,6 +92,16 @@ h1 {
   font-weight: 600;
   margin: 0;
   text-align: left;
+}
+
+.suggested-prompts-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  text-align: left;
+  align-items: center;
+  display: flex;
+  gap: .375rem;
 }
 
 /* ============================================================
@@ -137,26 +148,24 @@ button:focus-visible {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 1rem 0rem;
   flex-wrap: wrap;
 }
 .chat-input input,
 .chat-input button {
   min-height: 2.5rem;
-  padding: 0 1rem;
   line-height: 1;
   box-sizing: border-box;
 }
 
 .chat-input button {
   min-height: 3rem;
-  padding: 0.75rem 1rem;
   border-radius: 0.5rem;
+  padding: 1rem;
 }
 .chat-input input {
   flex: 1;
   min-height: 3rem;
-  padding: 0.75rem 1rem;
+  padding: 1rem;
   border-radius: 0.5rem;
   border: 1px solid #3C4043;
   font-family: inherit;
@@ -195,7 +204,7 @@ button:focus-visible {
 }
 
 .error-message {
-  display: block;
+  display: flex;
   padding: 0.5rem 1.5rem;
   margin: 0.5rem 0 0.5rem auto;
   border-radius: 0.5rem;
@@ -203,6 +212,8 @@ button:focus-visible {
   background-color: #3c1e1e;
   color: #E0E0E0;
   text-align: left;
+  align-items: center;
+  gap: .25rem;
 }
 
 /* ============================================================
@@ -233,7 +244,11 @@ button:focus-visible {
 hr.divider {
   border: none;
   border-top: 1px solid #3C4043;
-  margin-bottom: 2.5rem;
+}
+
+.spacer {
+  height: 1rem; /* Adjust as needed */
+  width: 100%;
 }
 
 /* ============================================================

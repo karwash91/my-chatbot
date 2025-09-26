@@ -94,7 +94,9 @@ const ChatWindow: React.FC = () => {
                 )}
                 <div ref={messagesEndRef} />
             </div>
+            <div className="spacer"/>
             <SuggestedPrompts onSelect={(prompt: string) => setInput(prompt)} />
+            <div className="spacer"/>
             <div className="chat-input">
                 <input
                     type="text"
@@ -105,7 +107,7 @@ const ChatWindow: React.FC = () => {
                     disabled={loading}
                 />
                 <button onClick={handleSend} disabled={loading || input.trim() === ""}>
-                     <MdArrowUpward size={18} />
+                    <MdArrowUpward size={18} />
                 </button>
             </div>
         </div>

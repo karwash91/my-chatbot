@@ -21,7 +21,7 @@ BEDROCK_MODEL_ID: str = os.environ.get(
     "arn:aws:bedrock:us-east-1:588738567290:inference-profile/us.anthropic.claude-sonnet-4-20250514-v1:0",
 )
 BEDROCK_GUARDRAIL_ID: Optional[str] = os.environ.get("BEDROCK_GUARDRAIL_ID", "rqkveuut7fzm")
-BEDROCK_GUARDRAIL_VERSION: str = os.environ.get("BEDROCK_GUARDRAIL_VERSION", "5")
+BEDROCK_GUARDRAIL_VERSION: str = os.environ.get("BEDROCK_GUARDRAIL_VERSION", "6")
 
 # Retrieval tuning
 TOP_K: int = int(os.environ.get("RETRIEVAL_TOP_K", "3"))
@@ -119,8 +119,12 @@ def build_llm_request(query: str, context_chunks: List[RetrievedChunk], use_guar
     # Instruction ensures no answer without context.
     system_prompt = (
         "You are a helpful DevOps assistant.\n"
+        "Use only the provided Context to answer the user's question.\n"
+        "If no Context is provided (or it's empty), reply exactly:\n"
+        "\"Sorry, I couldn't find any context matching your question.\"\n"
         "If the user's question involves dangerous instructions (such as actions that could cause catastrophic harm to systems), respond with:\n"
         "\"Sorry, the model cannot answer this question.\"\n"
+        "Do not attempt to answer the question without context.\n"
         "Keep answers under 1200 characters. Use short, clear sentences."
     )
 

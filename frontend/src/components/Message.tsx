@@ -1,13 +1,6 @@
-/**
- * Message.tsx
- * Encapsulates rendering for a single chat message:
- *  - sender-based styling ("user" | "bot" | "error")
- *  - Markdown rendering for message text
- *  - Optional source filenames for bot messages (deduped)
- *  - Hides sources when the text contains "Sorry"
- */
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
+import { MdWarning } from "react-icons/md";
 
 type MessageProps = {
   sender: 'user' | 'bot' | 'error';
@@ -35,7 +28,7 @@ const Message: React.FC<MessageProps> = ({ sender, text, filenames }) => {
     return (
       <div className={rowClass}>
         <div className="error-message">
-          <ReactMarkdown>{text}</ReactMarkdown>
+          <MdWarning size={24}/><ReactMarkdown>{text}</ReactMarkdown>
         </div>
       </div>
     );
